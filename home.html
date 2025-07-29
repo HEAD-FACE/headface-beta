@@ -73,9 +73,9 @@
     "เหนื่อยก็พัก แต่อย่าหยุดนะ",
     "ระบบนี้ฟรีนะครับ ใช้ได้เลย!",
     "ถ้าชอบระบบนี้ แชร์ให้เพื่อนด้วยนะ 😄",
-    "อยากได้ระบบแจ้งเตือนเพิ่มไหม? ติดต่อแอดมินได้เลย!",
+    "อยากได้ระบบแจ้งเตือนเพิ่มไหม? สมัคร MAX เลย!",
     "ขอบคุณที่ใช้ HEAD FACE ❤️",
-    "คุณเก่งมากที่ใช้ระบบนี้ทุกวัน!",
+    "ดูซิมีการบ้านไหม?",
     "พรุ่งนี้มีการบ้านไหมนะ? กดดูเลย!",
     "จำไว้ว่า...ทุกความพยายามไม่สูญเปล่า ✨"
   ];
@@ -263,7 +263,7 @@ function renderHomework(homeworks, allHomeworks = null) {
     const isPinned = pinned.includes(hw.id);
 
     html += `
-      <div class="${boxColor} hw-box border border-gray-300 rounded-xl p-4 relative transition-transform duration-500">
+      <div data-id="${hw.id}" class="${boxColor} hw-box border border-gray-300 rounded-xl p-4 relative transition-transform duration-500">
         <h3 class="text-lg font-semibold text-blue-700">${hw.subject}</h3>
         <p><strong>รายละเอียด:</strong> ${hw.title}</p>
         <p><strong>กำหนดส่ง:</strong> ${hw.due_date}</p>
@@ -559,30 +559,60 @@ function applyFilter() {
   /*** ฟังก์ชัน togglePin: เก็บหรือยกเลิก pinned ใน localStorage ***/
 function togglePin(hwId, btnEl) {
   const pinned = JSON.parse(localStorage.getItem('pinnedHW') || '[]');
-  const idx = pinned.indexOf(hwId);
-  const isPinning = idx === -1;
+  const isPinning = !pinned.includes(hwId);
+  // update array
+  const newPinned = isPinning
+    ? [...pinned, hwId]
+    : pinned.filter(id => id !== hwId);
+  localStorage.setItem('pinnedHW', JSON.stringify(newPinned));
 
-  // ── 1) ไอคอนขยายเล็กน้อยแล้วกลับตัว
-  btnEl.animate(
-    [ { transform: 'scale(1.3)' }, { transform: 'scale(1)' } ],
-    { duration: 200 }
-  );
+  // 1) เก็บตำแหน่งก่อน render
+  const container = document.getElementById('hw-list');
+  const oldBoxes = Array.from(container.querySelectorAll('.hw-box'));
+  const firstRects = {};
+  oldBoxes.forEach(el => {
+    firstRects[el.dataset.id] = el.getBoundingClientRect();
+  });
 
-  // ── 2) สลับสีไอคอนทันที
-  if (isPinning) {
-    pinned.push(hwId);
-    btnEl.classList.remove('text-gray-400');
-    btnEl.classList.add('text-yellow-500');
-  } else {
-    pinned.splice(idx, 1);
-    btnEl.classList.remove('text-yellow-500');
-    btnEl.classList.add('text-gray-400');
-  }
-  localStorage.setItem('pinnedHW', JSON.stringify(pinned));
+  // 2) reorder & render ใหม่
+  const allHW = JSON.parse(localStorage.getItem('hw_data')) || [];
+  renderHomework(allHW);
 
-  // ── 3) เรียก FLIP animation เพื่อเลื่อนกล่อง
-  reorderWithAnimation(hwId, isPinning);
+  // 3) after DOM update → animate & set icon color
+  requestAnimationFrame(() => {
+    const newBoxes = Array.from(container.querySelectorAll('.hw-box'));
+    newBoxes.forEach(el => {
+      const id = el.dataset.id;
+      const oldRect = firstRects[id];
+      if (!oldRect) return;
+      const newRect = el.getBoundingClientRect();
+      const deltaY = oldRect.top - newRect.top;
+
+      // FLIP: move back to old position instantly
+      el.style.transform = `translateY(${deltaY}px)`;
+      el.style.transition = 'transform 0s';
+
+      // แล้ว transition มาเป็น 0
+      requestAnimationFrame(() => {
+        el.style.transform = '';
+        el.style.transition = 'transform 500ms';
+      });
+
+      // สลับสีไอคอนตามสถานะใหม่
+      const btn = el.querySelector('button[title*="ปักหมุด"]');
+      if (btn) {
+        btn.classList.toggle('text-yellow-500', newPinned.includes(id));
+        btn.classList.toggle('text-gray-400', !newPinned.includes(id));
+        // และเล่น scale animation เล็กน้อย
+        btn.animate(
+          [{ transform: 'scale(1.3)' }, { transform: 'scale(1)' }],
+          { duration: 200 }
+        );
+      }
+    });
+  });
 }
+
 
 /*** FLIP Animation เทคนิค ***/
 function reorderWithAnimation(hwId, isPinning) {
