@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // <<< สำคัญ: แทนที่ด้วย GAS Web App URL ของคุณ >>>
     // นี่คือ URL ของ GAS Web App ที่จะทำหน้าที่แลก Code เป็น Access Token
-    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec'; 
+    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbx6kINHRlGK0o6dB27OW-Mwm6yN0QfC17Ve03qQmkPh-3704tRWZvIElmHyxL4rEelj/exec'; 
     // ตัวอย่าง: 'https://script.google.com/macros/s/AKfycbx.../exec'
 
 
