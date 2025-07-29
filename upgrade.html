@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrade Service - ลงทะเบียน</title>
     <link rel="stylesheet" href="style.css">
-    
+     <script src="https://static.line-scdn.net/liff/sdk/v2/liff.js "></script>
 </head>
 <body>
     <div class="container">
@@ -38,8 +38,62 @@
         </div>
     </div>
 
-    <script src="https://static.line-scdn.net/liff/sdk/v2/liff.js "></script>
-    <script src="script.js"></script>
+    <script>
+
+    // script.js
+document.addEventListener('DOMContentLoaded', () => {
+    const lineLoginButton = document.getElementById('line-login-button');
+    const paymentSection = document.getElementById('payment-section');
+    const statusRegister = document.getElementById('status-register');
+    const statusPending = document.getElementById('status-pending');
+    const statusCompleted = document.getElementById('status-completed');
+    const slipUploadInput = document.getElementById('slip-upload');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const submitRegistrationButton = document.getElementById('submit-registration-button');
+
+    let lineUserId = null; // To store LINE User ID
+
+    // --- Function to update status bar ---
+    function updateStatusBar(activeStatusId) {
+        [statusRegister, statusPending, statusCompleted].forEach(item => {
+            item.classList.remove('active');
+        });
+        document.getElementById(activeStatusId).classList.add('active');
+    }
+
+    // --- Initialize LINE SDK ---
+    // Replace 'YOUR_CHANNEL_ID' with your actual LINE Login Channel ID
+    // You need to create a LINE Login channel on LINE Developers console
+    // and add 'http://localhost:5500/upgrade.html' (or your deployed URL) as a callback URL.
+    liff.init({
+        liffId: '2007333047-XVaQjnmO'
+    }).then(() => {
+        if (liff.isLoggedIn()) {
+            liff.getProfile().then(profile => {
+                lineUserId = profile.userId;
+                console.log('LINE User ID:', lineUserId);
+                // If already logged in, update UI
+                lineLoginButton.textContent = 'LINE เชื่อมต่อสำเร็จ!';
+                lineLoginButton.classList.add('success');
+                lineLoginButton.disabled = true;
+                paymentSection.style.display = 'block';
+                updateStatusBar('status-register'); // Stay on register until submitted
+            }).catch(err => console.error('Error getting LINE profile:', err));
+        } else {
+            console.log('Not logged in to LINE.');
+        }
+    }).catch(err => {
+        console.error('LIFF initialization failed', err);
+        alert('เกิดข้อผิดพลาดในการเริ่มต้น LINE SDK กรุณาลองใหม่ภายหลัง');
+    });
+
+    // --- LINE Login Button Click Handler ---
+    lineLoginButton.addEventListener('click', () => {
+        if (!liff.isLoggedIn()) {
+            liff.login(); // This will redirect to LINE Login page
+        }
+    });
+    </script>
     
 </body>
 </html>
