@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>แต้มสะสม | ระบบของคุณ</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- ฟอนต์ + ธีม -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap');
+    :root{
+      --color-primary:#1e40af;--color-bg:#f0f5ff;--color-text:#1e293b;
+      --color-card-bg:#fff;--shadow:rgba(30,64,175,.15)
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;padding:30px 15px;background:var(--color-bg);
+      font-family:'Kanit',sans-serif;color:var(--color-text);
+      display:flex;justify-content:center;min-height:100vh
+    }
+    .container{
+      max-width:600px;width:100%;background:var(--color-card-bg);
+      border-radius:20px;padding:30px 25px;
+      box-shadow:0 12px 24px var(--shadow);display:flex;flex-direction:column;
+      transition:filter .3s
+    }
+    h1{margin:0 0 24px;text-align:center;color:var(--color-primary);font-size:1.9rem}
+    .userinfo{display:grid;grid-template-columns:1fr 1fr;gap:18px 30px;font-weight:500;font-size:1.1rem;margin-bottom:30px}
+    .userinfo div{background:var(--color-bg);padding:10px 16px;border-radius:12px;box-shadow:0 6px 12px rgba(59,130,246,.1)}
+    .points-box{background:linear-gradient(135deg,#2563eb,#1e40af);color:#fff;font-size:3.2rem;font-weight:900;
+      padding:30px 20px;border-radius:30px;box-shadow:0 15px 30px rgba(30,64,175,.4);user-select:none;letter-spacing:5px;text-align:center;margin-bottom:20px}
+    .btn-view-redeemed{background:#1e40af;color:#fff;font-weight:600;border:none;border-radius:12px;padding:12px;margin-bottom:20px;
+      cursor:pointer;font-size:1rem;width:100%;transition:background .3s}
+    .btn-view-redeemed:hover{background:#172554}
+    .reward-card{background:#f8fbff;border-radius:16px;padding:15px;box-shadow:0 4px 12px rgba(0,100,255,.1);margin-bottom:15px;overflow:hidden}
+    .reward-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+    .reward-title{font-weight:700;color:#1e3a8a;font-size:1.1rem}
+    .reward-meta{font-size:.95rem;color:#475569;margin-top:4px}
+    .reward-detail{max-height:0;overflow:hidden;transition:max-height .4s,padding .4s}
+    .reward-card.open .reward-detail{max-height:220px;padding-top:12px}
+    .btn-redeem{background:var(--color-primary);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-weight:bold;cursor:pointer;margin-top:10px}
+    .btn-redeem:disabled{background:#ccc;cursor:not-allowed}
+    .points-label{font-size:1rem;font-weight:500;opacity:.85;margin-top:10px;letter-spacing:1px}
+  </style>
+</head>
+<body>
+  <!-- LOADING OVERLAY -->
+  <div id="loader" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-white/80 backdrop-blur-sm">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid"></div>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div id="main" class="container">
+    <h1>ข้อมูลส่วนตัว (BETA 2)</h1>
+
+    <div class="userinfo">
+      <div>ชื่อ: <span id="user-name">-</span></div>
+      <div>นามสกุล: <span id="user-lastname">-</span></div>
+      <div>เลขที่: <span id="user-no">-</span></div>
+      <div>เลขประจำตัว: <span id="user-id">-</span></div>
+    </div>
+
+    <div class="points-box">
+      <div id="user-points">0</div>
+      <div class="points-label">คะแนนสะสม</div>
+    </div>
+
+    <button class="btn-view-redeemed" onclick="location.href='reward.html'">
+      🎁 ดูรางวัลที่แลกไปแล้ว
+    </button>
+
+    <div id="reward-list"></div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    const GAS_URL='https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
+    const loader=document.getElementById('loader');
+    const main=document.getElementById('main');
+    /* -------- loader helpers -------- */
+    let loadCount=0;
+    const showLoader=()=>{if(++loadCount===1){loader.classList.remove('hidden');main.classList.add('blur-sm')}};
+    const hideLoader=()=>{if(--loadCount<=0){loadCount=0;loader.classList.add('hidden');main.classList.remove('blur-sm')}};
+
+    /* -------- utils -------- */
+    /**
+     * แต้มวิ่งสุ่มช้า ~2.8 วิ เปลี่ยนเลขทุก 70 ms
+     */
+    function animatePoints(from,to,duration=2800,step=70){
+      const el=document.getElementById('user-points');
+      const start=performance.now();
+      let nextSwap=start;
+
+      const ease=t=>t<.5?2*t*t:-1+(4-2*t)*t;   // easeInOutQuad
+
+      const tick=now=>{
+        const prog=Math.min((now-start)/duration,1);
+        const cur=Math.floor(from+(to-from)*ease(prog));
+
+        if(now>=nextSwap && prog<1){
+          el.textContent=Math.floor(Math.random()*(to-from)+from);
+          nextSwap=now+step;
+        }
+
+        if(prog<1){
+          requestAnimationFrame(tick);
+        }else{
+          el.textContent=to;
+        }
+      };
+      requestAnimationFrame(tick);
+    }
+
+    /* -------- local data -------- */
+    function loadUserData(){
+      const userStr=localStorage.getItem('user');
+      if(!userStr){alert('กรุณาล็อกอินก่อน');return null;}
+      const u=JSON.parse(userStr);
+      document.getElementById('user-name').textContent=u.firstName||'-';
+      document.getElementById('user-lastname').textContent=u.lastName||'-';
+      document.getElementById('user-no').textContent=u.no||'-';
+      document.getElementById('user-id').textContent=u.studentId||'-';
+      return u;
+    }
+
+    /* -------- fetch -------- */
+    async function fetchUserPoints(no){
+      try{
+        showLoader();
+        const res=await fetch(`${GAS_URL}?action=getUserPoints&no=${no}`);
+        const data=await res.json();
+        return data.points;
+      }catch(e){
+        console.error(e);return 0;
+      }finally{hideLoader();}
+    }
+    async function fetchRewards(points,no){
+      try{
+        showLoader();
+        const res=await fetch(`${GAS_URL}?action=getRewards`);
+        const data=await res.json();
+        const list=document.getElementById('reward-list');list.innerHTML='';
+        data.rewards.forEach(r=>{
+          const hasClaimed=r.claimedList.includes(String(no));
+          const canRedeem=!hasClaimed&&(r.quantity==='U'||Number(r.quantity)>r.claimedList.length);
+          const enough=points>=Number(r.price);
+
+          const card=document.createElement('div');card.className='reward-card';
+          const header=document.createElement('div');header.className='reward-header';header.innerHTML=`
+            <div>
+              <div class="reward-title">${r.name}</div>
+              <div class="reward-meta">แต้ม: ${r.price} | หมดเขต: ${r.expireDate} | จำนวน: ${r.quantity==='U'?'ไม่จำกัด':r.quantity}</div>
+            </div>
+            <div>▼</div>`;
+          const detail=document.createElement('div');detail.className='reward-detail';
+          detail.innerHTML=`<div>${r.desc}</div>`;
+          const btn=document.createElement('button');btn.className='btn-redeem';
+          btn.textContent=hasClaimed?'แลกแล้ว':'แลกรางวัล';btn.disabled=!canRedeem||!enough;
+          btn.onclick=()=>redeemReward(r.id,points,no,btn);
+          detail.appendChild(btn);
+
+          header.addEventListener('click',()=>card.classList.toggle('open'));
+          card.append(header,detail);list.appendChild(card);
+        });
+      }catch(e){console.error(e);}
+      finally{hideLoader();}
+    }
+
+    /* -------- redeem -------- */
+    async function redeemReward(rewardId,points,userNo,btn){
+      if(!confirm('คุณต้องการแลกรางวัลนี้ใช่หรือไม่?'))return;
+      try{
+        showLoader();
+        const res=await fetch(`${GAS_URL}?action=redeemReward&no=${userNo}&rewardId=${rewardId}&points=${points}`);
+        const result=await res.json();
+        if(result.success){
+          alert('แลกรางวัลสำเร็จ!');
+          const current=parseInt(document.getElementById('user-points').textContent);
+          animatePoints(current,result.newPoints);
+          btn.textContent='แลกแล้ว';btn.disabled=true;
+        }else alert('แลกไม่สำเร็จ: '+result.message);
+      }catch(e){console.error(e);alert('เกิดข้อผิดพลาดในการแลกรางวัล');}
+      finally{hideLoader();}
+    }
+
+    /* -------- start -------- */
+    window.addEventListener('load',async()=>{
+      const user=loadUserData();if(!user)return;
+      const points=await fetchUserPoints(user.no);
+      animatePoints(0,points);           // เริ่มวิ่งช้า ๆ
+      await fetchRewards(points,user.no);
+    });
+  </script>
+</body>
+</html>
