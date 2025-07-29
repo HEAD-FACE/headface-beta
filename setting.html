@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ตั้งเวลาแจ้งเตือน - HEAD FACE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gradient-to-br from-blue-100 to-blue-300 min-h-screen">
+
+    <!-- กล่องตั้งค่าพร้อม overlay -->
+    <div class="relative max-w-md mx-auto mt-10">
+      <!-- กล่องตั้งค่า -->
+      <div id="setting-box" class="p-6 bg-white shadow-xl rounded-2xl relative z-0">
+        <h1 class="text-xl font-bold text-blue-700 text-center mb-4">
+          ตั้งเวลาแจ้งเตือนการบ้าน 
+        </h1>
+
+        <label class="block text-sm font-medium text-gray-700 mb-2">เลือกเวลา</label>
+        <select id="remind-time" class="w-full border border-blue-300 rounded-xl px-4 py-2 mb-4">
+          <option value="none">ไม่แจ้งเตือน</option>
+        </select>
+
+        <button onclick="saveReminderTime()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-semibold">
+          บันทึกเวลาแจ้งเตือน
+        </button>
+
+        <p id="status-msg" class="text-green-600 mt-4 text-center hidden">✅ บันทึกสำเร็จ!</p>
+      </div>
+
+      <!-- ✅ Overlay เฉพาะกล่อง -->
+      <div id="max-overlay" class="absolute inset-0 bg-white bg-opacity-70 rounded-2xl flex items-center justify-center z-10 hidden">
+        <h1 class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500">
+          MAX
+        </h1>
+      </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading" class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center hidden z-50">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid"></div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = JSON.parse(localStorage.getItem("user"));
+        const lineId = user?.lineId;
+
+        if (!lineId) {
+          document.getElementById("max-overlay").classList.remove("hidden");
+
+          // ปิด dropdown และปุ่ม
+          const controls = document.querySelectorAll("select, button");
+          controls.forEach(el => {
+            el.disabled = true;
+            el.classList.add("opacity-50", "cursor-not-allowed");
+          });
+        }
+
+        populateDropdown();
+        loadReminderTime();
+      });
+
+      const loading = document.getElementById("loading");
+
+      function showLoading() {
+        loading.classList.remove("hidden");
+      }
+
+      function hideLoading() {
+        loading.classList.add("hidden");
+      }
+
+      const dropdown = document.getElementById("remind-time");
+      const statusMsg = document.getElementById("status-msg");
+      const user = JSON.parse(localStorage.getItem("user"));
+      const lineUserId = user?.lineId;
+
+      function populateDropdown() {
+        for (let h = 0; h < 24; h++) {
+          for (let m = 0; m < 60; m += 30) {
+            const time = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+            dropdown.innerHTML += `<option value="${time}">${time}</option>`;
+          }
+        }
+      }
+
+      async function loadReminderTime() {
+        if (!lineUserId) return;
+        showLoading();
+        const res = await fetch(`https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec?action=get_reminder_time&id=${lineUserId}`);
+        const data = await res.json();
+        hideLoading();
+        if (data.status === "success") {
+          dropdown.value = data.time || "16:30";
+        }
+      }
+
+      async function saveReminderTime() {
+        const selected = dropdown.value;
+        if (!lineUserId) return alert("ไม่พบข้อมูลผู้ใช้");
+        showLoading();
+        const url = `https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec?action=set_reminder_time&id=${lineUserId}&time=${selected}`;
+        const res = await fetch(url);
+        const result = await res.json();
+        hideLoading();
+        if (result.status === "success") {
+          statusMsg.classList.remove("hidden");
+          setTimeout(() => statusMsg.classList.add("hidden"), 3000);
+        } else if (result.status === "limit") {
+          alert("เปลี่ยนได้สูงสุด 5 ครั้งต่อวัน");
+        } else {
+          alert("เกิดข้อผิดพลาด");
+        }
+      }
+    </script>
+  </body>
+</html>
