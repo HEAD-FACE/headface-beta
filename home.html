@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>หน้าหลัก - HEAD FACE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script data-goatcounter="https://naku23.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
+  </head>
+  <body class="bg-gradient-to-br from-blue-100 to-blue-300 min-h-screen">
+    <!-- Header -->
+    <div class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
+      <button id="menu-btn" class="p-2 text-gray-700 focus:outline-none fixed top-4 left-4 z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+      <!-- Sidebar -->
+      <div id="sidebar" class="fixed top-0 left-0 w-64 h-full bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-40">
+        <div class="p-4 border-b flex justify-between items-center">
+          <span class="font-bold text-xl">เมนู</span>
+          <button id="close-btn" class="text-gray-500">
+            ✕
+          </button>
+        </div>
+        <nav class="p-4 space-y-3">
+          <a href="index.html" class="block text-blue-600 hover:underline">เข้าสู่ระบบอีกครั้ง</a>
+          <a href="setting.html" class="block text-blue-600 hover:underline">การตั้งค่าระบบ (BETA)</a>
+          <a href="point.html" class="block text-blue-600 hover:underline">สะสมแต้ม/แลกแต้ม (BETA)</a>
+          <a href="reward.html" class="block text-blue-600 hover:underline">รางวัลที่แลก (BETA)</a>
+          <a href="brainfood.html" class="block text-blue-600 hover:underline">
+  Brain Food
+</a>
+
+        </nav>
+      </div>
+
+      <!-- Overlay (คลิกเพื่อปิดเมนู) -->
+      <div id="overlay" class="fixed inset-0 bg-black bg-opacity-30 hidden z-30"></div>
+      <h1 class="text-2xl font-bold text-blue-700" style="padding-left: 30px; padding-top: 5px;">HEAD FACE 1.2 (BETA)</h1>
+      <button
+        id="logout-btn"
+        class="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded-xl font-semibold"
+      >
+        ล็อกเอาท์
+      </button>
+      
+      <!-- ★ ปุ่มอัปเกรด (ใหม่) ★ -->
+<button
+  id="open-upgrade"
+  class="ml-3 bg-white text-indigo-600 font-semibold px-4 py-1 rounded-xl border
+         border-indigo-500 shadow transition
+         hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600
+         hover:text-white"
+>
+  อัปเกรด
+</button>
+    </div>
+<!-- กล่องข้อความด้านบน -->
+<div class="max-w-4xl mx-auto mt-4 px-4">
+  <div class="bg-white rounded-2xl shadow-lg p-4 text-blue-800 font-semibold text-lg min-h-[60px]">
+    <div id="typewriter"></div>
+  </div>
+</div>
+
+<script>
+  const messages = [
+    "วันนี้ก็สู้ ๆ นะ!",
+    "อย่าลืมส่งการบ้านล่ะ!",
+    "เหนื่อยก็พัก แต่อย่าหยุดนะ",
+    "ระบบนี้ฟรีนะครับ ใช้ได้เลย!",
+    "ถ้าชอบระบบนี้ แชร์ให้เพื่อนด้วยนะ 😄",
+    "อยากได้ระบบแจ้งเตือนเพิ่มไหม? ติดต่อแอดมินได้เลย!",
+    "ขอบคุณที่ใช้ HEAD FACE ❤️",
+    "คุณเก่งมากที่ใช้ระบบนี้ทุกวัน!",
+    "พรุ่งนี้มีการบ้านไหมนะ? กดดูเลย!",
+    "จำไว้ว่า...ทุกความพยายามไม่สูญเปล่า ✨"
+  ];
+
+  let currentMessage = 0;
+  let charIndex = 0;
+  const typeTarget = document.getElementById("typewriter");
+
+  function typeWriter() {
+    const message = messages[currentMessage];
+    if (charIndex < message.length) {
+      typeTarget.innerHTML += message.charAt(charIndex);
+      charIndex++;
+      setTimeout(typeWriter, 50); // ความเร็วพิมพ์
+    } else {
+      setTimeout(() => {
+        // ลบข้อความเดิมช้า ๆ
+        deleteMessage();
+      }, 2500); // พัก 2.5 วินาทีก่อนลบ
+    }
+  }
+
+  function deleteMessage() {
+    const message = messages[currentMessage];
+    if (charIndex > 0) {
+      typeTarget.innerHTML = message.substring(0, charIndex - 1);
+      charIndex--;
+      setTimeout(deleteMessage, 30); // ความเร็วลบ
+    } else {
+      // เปลี่ยนไปข้อความถัดไป
+      currentMessage = (currentMessage + 1) % messages.length;
+      setTimeout(typeWriter, 300);
+    }
+  }
+
+  // เริ่มทำงาน
+  document.addEventListener("DOMContentLoaded", () => {
+    typeWriter();
+  });
+</script>
+
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto mt-8 px-4">
+      <div class="bg-white rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold text-blue-700 mb-4">ข้อมูลของคุณ</h2>
+        <div id="user-info" class="mb-6 text-gray-700"></div>
+
+        <h2 class="text-xl font-bold text-blue-700 mb-4">รายการการบ้าน</h2>
+        <p id="last-updated-time" class="text-sm text-gray-500 mb-3"></p>
+        <!-- ปฏิทิน -->
+        <div class="max-w-4xl mx-auto mt-6 px-4">
+          <div class="bg-white rounded-2xl shadow-xl p-4">
+            <div class="flex justify-between items-center mb-4">
+              <button id="prevMonth" class="text-blue-600 font-bold text-xl">&lt;</button>
+              <h2 id="monthYear" class="text-xl font-semibold text-blue-800"></h2>
+              <button id="nextMonth" class="text-blue-600 font-bold text-xl">&gt;</button>
+            </div>
+            <div class="grid grid-cols-7 text-center font-semibold text-blue-700 mb-2">
+              <div>อา.</div><div>จ.</div><div>อ.</div><div>พ.</div><div>พฤ.</div><div>ศ.</div><div>ส.</div>
+            </div>
+            <div id="calendar" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
+          </div>
+        </div>
+
+              <div class="mb-4 grid grid-cols-1 md:grid-cols-4 gap-4" style="padding-top: 20px;">
+          <select id="filter-status" class="p-2 border rounded">
+            <option value="">ทั้งหมด</option>
+            <option value="submitted">ส่งแล้ว</option>
+            <option value="not_submitted">ยังไม่ส่ง</option>
+          </select>
+
+          <input type="date" id="filter-date" class="p-2 border rounded" />
+
+          <input type="text" id="filter-subject" placeholder="พิมพ์ชื่อวิชา" class="p-2 border rounded" />
+
+          <button onclick="applyFilter()" class="bg-blue-500 text-white px-4 py-2 rounded">
+            กรองข้อมูล
+          </button>
+        </div>
+        <div id="hw-list" class="space-y-4"></div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center hidden z-50">
+      <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 border-solid"></div>
+    </div>
+
+    <script>
+      const user = JSON.parse(localStorage.getItem("user"));
+      const loading = document.getElementById("loading");
+
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        document.getElementById("user-info").innerHTML = `
+          <p><strong>ชื่อ:</strong> ${user.firstName} ${user.lastName}</p>
+          <p><strong>เลขที่:</strong> ${user.no}</p>
+          <p><strong>เลขประจำตัว:</strong> ${user.studentId}</p>
+        `;
+
+        checkLastUpdatedAndLoad();
+      }
+
+      async function checkLastUpdatedAndLoad() {
+        loading.classList.remove("hidden");
+
+        try {
+          const res = await fetch("https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec?action=lastUpdated");
+          const data = await res.json();
+
+          const serverUpdated = parseInt(data.last_updated);
+          const localUpdated = parseInt(localStorage.getItem("last_updated"));
+          const localHW = localStorage.getItem("hw_data");
+
+          if (localUpdated === serverUpdated) {
+            renderHomework(JSON.parse(localHW));
+            showLastUpdatedTime(serverUpdated);
+            console.log(localUpdated)
+            console.log(serverUpdated)
+          } else {
+            await fetchHomework(serverUpdated);
+          }
+        } catch (err) {
+          alert("เกิดข้อผิดพลาดในการตรวจสอบเวลาอัปเดต");
+        } finally {
+          loading.classList.add("hidden");
+        }
+      }
+
+      async function fetchHomework(serverUpdated) {
+        const url = `https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec?action=hw&no=${user.no}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.status === "success") {
+          localStorage.setItem("hw_data", JSON.stringify(data.homework));
+          localStorage.setItem("last_updated", serverUpdated);
+          renderHomework(data.homework);
+          showLastUpdatedTime(serverUpdated);
+        } else {
+          alert("โหลดข้อมูลการบ้านไม่สำเร็จ");
+        }
+      }
+
+function renderHomework(homeworks, allHomeworks = null) {
+  const list = document.getElementById("hw-list");
+
+  if (homeworks.length === 0) {
+    list.innerHTML = "<p class='text-gray-500'>ไม่มีการบ้าน</p>";
+    return;
+  }
+  const baseHW = allHomeworks || homeworks;
+  // Progress bar
+  const total = baseHW.length;
+  const submitted = baseHW.filter(hw =>
+    hw.submitted || (hw.submitted_no || "").includes(user.no.toString())
+  ).length;
+  const percent = Math.round((submitted / total) * 100);
+
+  let html = `
+    <div class="mb-6">
+      <p class="text-sm font-semibold text-gray-600 mb-1">ความคืบหน้า: ${percent}%</p>
+      <div class="w-full bg-gray-300 rounded-full h-4 overflow-hidden">
+        <div class="bg-blue-500 h-full transition-all duration-500" style="width: ${percent}%"></div>
+      </div>
+    </div>
+  `;
+
+  // การบ้านแต่ละชิ้น
+  const today = new Date();
+  homeworks.forEach(hw => {
+    const isSubmitted = hw.submitted || (hw.submitted_no || "").includes(user.no.toString());
+
+    const dueDate = new Date(hw.due_date); // ต้องเป็นรูปแบบ "yyyy-mm-dd" หรือ Date ที่ parse ได้
+    const timeDiff = dueDate - today;
+    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+    // สีพื้นหลังตามกำหนดส่ง
+    let boxColor = "bg-white";
+    if (!isSubmitted && daysLeft <= 2 && daysLeft >= 0) {
+      boxColor = "bg-yellow-100"; // เหลืองอ่อน
+    }
+
+    html += `
+  <div class="${boxColor} border border-gray-300 rounded-xl p-4">
+    <h3 class="text-lg font-semibold text-blue-700">${hw.subject}</h3>
+    <p><strong>รายละเอียด:</strong> ${hw.title}</p>
+    <p><strong>กำหนดส่ง:</strong> ${hw.due_date}</p>
+    <p><strong>สถานะ:</strong>
+      <span class="${isSubmitted ? "text-green-600" : "text-red-500"}">
+        ${isSubmitted ? "ส่งแล้ว" : "ยังไม่ส่ง"}
+      </span>
+    </p>
+    ${
+      isSubmitted
+        ? `<button
+             onclick="unmarkAsSubmitted('${hw.id}')"
+             class="mt-2 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg"
+           >
+             ยกเลิกบันทึกว่าส่งแล้ว
+           </button>`
+        : `<button
+             onclick="markAsSubmitted('${hw.id}')"
+             class="mt-2 bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-lg"
+           >
+             บันทึกว่าส่งแล้ว
+           </button>`
+    }
+  </div>
+`;
+
+  });
+
+  list.innerHTML = html;
+}
+
+     async function markAsSubmitted(hwId) {
+  const confirmSubmit = confirm("ยืนยันว่าคุณได้ส่งการบ้านแล้ว?");
+  if (!confirmSubmit) return;
+
+
+  try {
+    const url = `https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec?action=submit&no=${user.no}&hw_id=${hwId}`
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.status === "success") {
+      alert("ส่งการบ้านสำเร็จ!");
+
+      // อัปเดต localStorage (อัปเดตสถานะในข้อมูล)
+      const hwList = JSON.parse(localStorage.getItem("hw_data"));
+      const updatedList = hwList.map(hw => {
+        if (hw.id === hwId) {
+          hw.submitted = true; // สมมุติเราจะเช็กจาก field นี้
+        }
+        return hw;
+      });
+      localStorage.setItem("hw_data", JSON.stringify(updatedList));
+
+      // อัปเดตบนหน้าเว็บ
+      renderHomework(updatedList);
+    } else {
+      alert("ส่งการบ้านไม่สำเร็จ");
+    }
+  } catch (err) {
+    alert("เกิดข้อผิดพลาดในการส่งการบ้าน");
+  }
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      localStorage.clear(); // หรือลบเฉพาะ user
+      window.location.href = "index.html"; // ย้อนกลับไปหน้า login
+    });
+  }
+});
+      // ปฏิทิน
+      let today = new Date();
+      function toDateStringLocal(date) {
+  const tzOffset = date.getTimezoneOffset() * 60000; // ส่วนต่างเวลาของเขต UTC (หน่วยเป็น ms)
+  const localISO = new Date(date - tzOffset).toISOString(); // ปรับเวลาเป็น local แล้วแปลง
+  return localISO.split("T")[0]; // ตัดส่วนเวลาออก
+}
+      let currentMonth = today.getMonth();
+      let currentYear = today.getFullYear();
+
+      function renderCalendarWithHomework(homeworks) {
+        const calendarEl = document.getElementById("calendar");
+        const monthYearEl = document.getElementById("monthYear");
+
+        calendarEl.innerHTML = "";
+
+        const monthNames = [
+          "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+          "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+        ];
+
+        monthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear + 543}`;
+
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        for (let i = 0; i < firstDay; i++) {
+          calendarEl.appendChild(document.createElement("div"));
+        }
+
+        for (let date = 1; date <= lastDate; date++) {
+          const cell = document.createElement("div");
+          const thisDate = new Date(currentYear, currentMonth, date);
+          const isToday =
+          date === today.getDate() &&
+          currentMonth === today.getMonth() &&
+          currentYear === today.getFullYear();
+          const dateStr = toDateStringLocal(thisDate);
+
+          const dailyHW = homeworks.filter(hw => hw.due_date === dateStr);
+
+          cell.className = `rounded-lg p-1 h-20 transition cursor-pointer flex flex-col items-center justify-start overflow-hidden hover:bg-blue-200 ${
+            isToday ? "bg-blue-500 text-white font-bold" : "bg-gray-100 text-black"
+          }`;
+          cell.innerHTML = `<div class='font-bold text-sm'>${date}</div>`;
+
+          dailyHW.forEach(hw => {
+            const subj = document.createElement("div");
+            subj.className = isToday ? "text-xs truncate w-full" : "text-xs text-blue-700 truncate w-full";
+            subj.textContent = hw.subject;
+            cell.appendChild(subj);
+          });
+
+          cell.addEventListener("click", () => {
+            if (dailyHW.length > 0) {
+              alert("การบ้านวันที่ " + date + ":\n" + dailyHW.map(hw => `${hw.subject}: ${hw.title}`).join("\n"));
+            }
+          });
+
+          calendarEl.appendChild(cell);
+        }
+      }
+
+      function updateCalendar() {
+        const hwData = JSON.parse(localStorage.getItem("hw_data")) || [];
+        renderCalendarWithHomework(hwData);
+      }
+
+      document.getElementById("prevMonth").addEventListener("click", () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        updateCalendar();
+      });
+
+      document.getElementById("nextMonth").addEventListener("click", () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        updateCalendar();
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        updateCalendar();
+      });
+
+      function showLastUpdatedTime(timestamp) {
+  const date = new Date(parseInt(timestamp));
+  const options = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  };
+
+  const formatter = new Intl.DateTimeFormat("th-TH", options);
+  const formatted = formatter.format(date).replace(",", "");
+
+  document.getElementById("last-updated-time").textContent =
+    "อัปเดตล่าสุด: " + formatted + " น.";
+}
+
+function applyFilter() {
+  const statusFilter = document.getElementById("filter-status").value;
+  const dateFilter = document.getElementById("filter-date").value;
+  const subjectFilter = document.getElementById("filter-subject").value.trim().toLowerCase();
+
+  const allHW = JSON.parse(localStorage.getItem("hw_data")) || [];
+
+  const filtered = allHW.filter(hw => {
+    const isSubmitted = hw.submitted || (hw.submitted_no || "").includes(user.no.toString());
+
+    if (statusFilter === "submitted" && !isSubmitted) return false;
+    if (statusFilter === "not_submitted" && isSubmitted) return false;
+    if (dateFilter && hw.due_date !== dateFilter) return false;
+    if (subjectFilter && !hw.subject.toLowerCase().includes(subjectFilter)) return false;
+
+    return true;
+  });
+
+  renderHomework(filtered, allHW); // ✅ ส่งทั้ง filtered และ all
+}
+
+      const menuBtn = document.getElementById("menu-btn");
+      const closeBtn = document.getElementById("close-btn");
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+
+      menuBtn.addEventListener("click", () => {
+        sidebar.classList.remove("-translate-x-full");
+        overlay.classList.remove("hidden");
+        menuBtn.classList.add("hidden"); // 🔹 ซ่อนปุ่ม ☰
+      });
+
+      const closeSidebar = () => {
+        sidebar.classList.add("-translate-x-full");
+        overlay.classList.add("hidden");
+        menuBtn.classList.remove("hidden"); // 🔹 แสดงปุ่ม ☰
+      };
+
+      closeBtn.addEventListener("click", closeSidebar);
+      overlay.addEventListener("click", closeSidebar);
+
+      async function unmarkAsSubmitted(hwId) {
+  const ok = confirm("ยืนยันยกเลิกการบันทึกว่าส่งแล้ว?");
+  if (!ok) return;
+
+  try {
+    const url = `https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec?action=unsubmit&no=${user.no}&hw_id=${hwId}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.status === "success") {
+      // ปรับ localStorage
+      const hwList = JSON.parse(localStorage.getItem("hw_data"));
+      const updated = hwList.map(hw => {
+        if (hw.id === hwId) hw.submitted = false;
+        return hw;
+      });
+      localStorage.setItem("hw_data", JSON.stringify(updated));
+
+      renderHomework(updated);      // รีเฟรชหน้าจอ
+    } else {
+      alert("ยกเลิกไม่สำเร็จ");
+    }
+  } catch (err) {
+    alert("เกิดข้อผิดพลาดในการยกเลิก");
+  }
+}
+
+    </script>
+    <!-- ─────────────  Modal Upgrade  ───────────── -->
+<div id="upgrade-modal"
+     class="fixed inset-0 bg-black/40 flex items-center justify-center z-[60] hidden">
+  <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6 text-center"
+       onclick="event.stopPropagation()">
+    <h2 class="text-xl font-bold text-blue-800 mb-4">เลือกการใช้งาน</h2>
+    <p class="text-gray-600 mb-6">กรุณาเลือกว่าคุณต้องการทำอะไร</p>
+
+    <div class="space-y-3">
+      <a href="https://liff.line.me/2007333047-XVaQjnmO"
+         class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-xl transition">
+        ลงทะเบียน
+      </a>
+
+      <a href="https://form.jotform.com/251154265951053"
+         class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-xl transition">
+        ต่ออายุการใช้งาน
+      </a>
+
+      <button id="close-upgrade"
+              class="w-full text-sm text-gray-500 hover:text-gray-700 mt-4">
+        ยกเลิก
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── ปุ่มเปิด / ปิด modal
+  document.getElementById("open-upgrade")?.addEventListener("click", e => {
+    e.preventDefault();
+    document.getElementById("upgrade-modal").classList.remove("hidden");
+  });
+  document.getElementById("upgrade-modal").addEventListener("click", () => {
+    document.getElementById("upgrade-modal").classList.add("hidden");
+  });
+  document.getElementById("close-upgrade").addEventListener("click", () => {
+    document.getElementById("upgrade-modal").classList.add("hidden");
+  });
+</script>
+
+     <a href='http://www.freevisitorcounters.com'>www.Freevisitorcounters</a> <script type='text/javascript' src='https://www.freevisitorcounters.com/auth.php?id=0c410dfcdd15ce30d800ce11733435bf89386a35'></script>
+<script type="text/javascript" src="https://www.freevisitorcounters.com/en/home/counter/1351601/t/1"></script>
+  </body>
+</html>
