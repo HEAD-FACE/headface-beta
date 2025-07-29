@@ -261,13 +261,14 @@ function renderHomework(homeworks, allHomeworks = null) {
     const timeDiff = dueDate - new Date();
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
+    const isPinned = pinned.includes(hw.id);
     let boxColor = "bg-white";
     if (!isSubmitted && daysLeft <= 2 && daysLeft >= 0) {
       boxColor = "bg-yellow-100";
+    } else if (isPinned) {
+      boxColor = "bg-orange-100 pinned";
     }
-
-    const isPinned = pinned.includes(hw.id);
-
+    
     html += `
       <div data-id="${hw.id}" class="${boxColor} hw-box border border-gray-300 rounded-xl p-4 relative transition-transform duration-500">
         <h3 class="text-lg font-semibold text-blue-700">${hw.subject}</h3>
@@ -289,7 +290,7 @@ function renderHomework(homeworks, allHomeworks = null) {
              </button>`
         }
         <!-- ปุ่มปักหมุด -->
-        <button onclick="togglePin('${hw.id}', this)"
+        <button data-role="pin-btn" onclick="togglePin('${hw.id}', this)"
         class="absolute top-2 right-2 text-xl focus:outline-none 
                ${isPinned ? 'text-yellow-500' : 'text-gray-400'}"
         title="${isPinned ? 'ยกเลิกปักหมุด' : 'ปักหมุด'}">
