@@ -14,14 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LINE Login Configuration ---
     // <<< สำคัญ: แทนที่ด้วย Channel ID และ Callback URL ของคุณ >>>
-    const LINE_CHANNEL_ID = 'YOUR_CHANNEL_ID'; // Channel ID ของ LINE Login Channel
+    const LINE_CHANNEL_ID = '2007333047'; // Channel ID ของ LINE Login Channel
     const LINE_REDIRECT_URI = window.location.origin + window.location.pathname; // URL ของหน้า upgrade.html ที่ LINE จะ redirect กลับมา
     // Example: ถ้าเว็บของคุณคือ https://yourusername.github.io/your-repo/upgrade.html
     // LINE_REDIRECT_URI จะเป็น 'https://yourusername.github.io/your-repo/upgrade.html'
 
     // <<< สำคัญ: แทนที่ด้วย GAS Web App URL ของคุณ >>>
     // นี่คือ URL ของ GAS Web App ที่จะทำหน้าที่แลก Code เป็น Access Token
-    const GAS_TOKEN_EXCHANGE_URL = 'YOUR_GAS_WEB_APP_URL'; 
+    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec'; 
     // ตัวอย่าง: 'https://script.google.com/macros/s/AKfycbx.../exec'
 
 
