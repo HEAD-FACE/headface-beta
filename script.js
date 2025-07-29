@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LINE Login Configuration ---
     // <<< สำคัญ: แทนที่ด้วย Channel ID และ Callback URL ของคุณ >>>
     const LINE_CHANNEL_ID = '2007333047'; // Channel ID ของ LINE Login Channel
-    const LINE_REDIRECT_URI = window.location.origin + window.location.pathname; // URL ของหน้า upgrade.html ที่ LINE จะ redirect กลับมา
+    const LINE_REDIRECT_URI = "https://head-face.github.io/headface-beta/upgrade.html"; // URL ของหน้า upgrade.html ที่ LINE จะ redirect กลับมา
     // Example: ถ้าเว็บของคุณคือ https://yourusername.github.io/your-repo/upgrade.html
     // LINE_REDIRECT_URI จะเป็น 'https://yourusername.github.io/your-repo/upgrade.html'
 
