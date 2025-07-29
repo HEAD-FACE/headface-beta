@@ -71,7 +71,6 @@
       if (!liff.isLoggedIn()) await liff.login();
       const profile = await liff.getProfile();
       lineUserId = profile.userId;
-      userData.lineId = lineUserId;
       localStorage.setItem('user', JSON.stringify(userData));
       document.getElementById('btn-line-login').classList.replace('bg-green-500', 'bg-blue-600');
       document.getElementById('btn-line-login').textContent = 'สำเร็จ';
@@ -86,7 +85,7 @@
         surename: userData.lastName,
         number: userData.no,
         studentId: userData.studentId,
-        lineId: userData.lineId,
+        lineId: lineUserId,
         timestamp: new Date().toISOString(),
       });
       await fetch(GAS_ENDPOINT + '?' + payload.toString());
