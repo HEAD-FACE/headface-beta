@@ -223,14 +223,16 @@
       }
 
 function renderHomework(homeworks, allHomeworks = null) {
-  const list = document.getElementById("hw-list");
+  const container = document.getElementById('hw-list');
+  const pinned = JSON.parse(localStorage.getItem('pinnedHW') || '[]');
 
-  if (homeworks.length === 0) {
-    list.innerHTML = "<p class='text-gray-500'>ไม่มีการบ้าน</p>";
-    return;
-  }
+  // จัดลำดับ: งานที่ปักหมุดก่อน → งานอื่น
+  const pinnedHW = homeworks.filter(hw => pinned.includes(hw.id));
+  const unpinnedHW = homeworks.filter(hw => !pinned.includes(hw.id));
+  const sorted = [...pinnedHW, ...unpinnedHW];
+
+  // Progress bar (เหมือนเดิม)
   const baseHW = allHomeworks || homeworks;
-  // Progress bar
   const total = baseHW.length;
   const submitted = baseHW.filter(hw =>
     hw.submitted || (hw.submitted_no || "").includes(user.no.toString())
@@ -246,53 +248,53 @@ function renderHomework(homeworks, allHomeworks = null) {
     </div>
   `;
 
-  // การบ้านแต่ละชิ้น
-  const today = new Date();
-  homeworks.forEach(hw => {
+  // สร้างกล่องการบ้านแต่ละอัน พร้อมปุ่ม 📌
+  sorted.forEach(hw => {
     const isSubmitted = hw.submitted || (hw.submitted_no || "").includes(user.no.toString());
-
-    const dueDate = new Date(hw.due_date); // ต้องเป็นรูปแบบ "yyyy-mm-dd" หรือ Date ที่ parse ได้
-    const timeDiff = dueDate - today;
+    const dueDate = new Date(hw.due_date);
+    const timeDiff = dueDate - new Date();
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-    // สีพื้นหลังตามกำหนดส่ง
     let boxColor = "bg-white";
     if (!isSubmitted && daysLeft <= 2 && daysLeft >= 0) {
-      boxColor = "bg-yellow-100"; // เหลืองอ่อน
+      boxColor = "bg-yellow-100";
     }
+
+    const isPinned = pinned.includes(hw.id);
 
     html += `
-  <div class="${boxColor} border border-gray-300 rounded-xl p-4">
-    <h3 class="text-lg font-semibold text-blue-700">${hw.subject}</h3>
-    <p><strong>รายละเอียด:</strong> ${hw.title}</p>
-    <p><strong>กำหนดส่ง:</strong> ${hw.due_date}</p>
-    <p><strong>สถานะ:</strong>
-      <span class="${isSubmitted ? "text-green-600" : "text-red-500"}">
-        ${isSubmitted ? "ส่งแล้ว" : "ยังไม่ส่ง"}
-      </span>
-    </p>
-    ${
-      isSubmitted
-        ? `<button
-             onclick="unmarkAsSubmitted('${hw.id}')"
-             class="mt-2 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg"
-           >
-             ยกเลิกบันทึกว่าส่งแล้ว
-           </button>`
-        : `<button
-             onclick="markAsSubmitted('${hw.id}')"
-             class="mt-2 bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-lg"
-           >
-             บันทึกว่าส่งแล้ว
-           </button>`
-    }
-  </div>
-`;
-
+      <div class="${boxColor} hw-box border border-gray-300 rounded-xl p-4 relative transition-transform duration-500">
+        <h3 class="text-lg font-semibold text-blue-700">${hw.subject}</h3>
+        <p><strong>รายละเอียด:</strong> ${hw.title}</p>
+        <p><strong>กำหนดส่ง:</strong> ${hw.due_date}</p>
+        <p><strong>สถานะ:</strong>
+          <span class="${isSubmitted ? "text-green-600" : "text-red-500"}">
+            ${isSubmitted ? "ส่งแล้ว" : "ยังไม่ส่ง"}
+          </span>
+        </p>
+        ${isSubmitted
+          ? `<button onclick="unmarkAsSubmitted('${hw.id}')"
+                    class="mt-2 bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-lg">
+               ยกเลิกบันทึกว่าส่งแล้ว
+             </button>`
+          : `<button onclick="markAsSubmitted('${hw.id}')"
+                    class="mt-2 bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-lg">
+               บันทึกว่าส่งแล้ว
+             </button>`
+        }
+        <!-- ปุ่มปักหมุด -->
+        <button onclick="togglePin('${hw.id}', this)"
+                class="absolute top-2 right-2 text-xl focus:outline-none"
+                title="${isPinned ? 'ยกเลิกปักหมุด' : 'ปักหมุด'}">
+          ${isPinned ? '📍' : '📌'}
+        </button>
+      </div>
+    `;
   });
 
-  list.innerHTML = html;
+  container.innerHTML = html;
 }
+
 
      async function markAsSubmitted(hwId) {
   const confirmSubmit = confirm("ยืนยันว่าคุณได้ส่งการบ้านแล้ว?");
@@ -551,6 +553,55 @@ function applyFilter() {
   document.getElementById("close-upgrade").addEventListener("click", () => {
     document.getElementById("upgrade-modal").classList.add("hidden");
   });
+
+  /*** ฟังก์ชัน togglePin: เก็บหรือยกเลิก pinned ใน localStorage ***/
+function togglePin(hwId, btnEl) {
+  const pinned = JSON.parse(localStorage.getItem('pinnedHW') || '[]');
+  const idx = pinned.indexOf(hwId);
+  const isPinning = idx === -1;
+
+  if (isPinning) {
+    pinned.push(hwId);
+  } else {
+    pinned.splice(idx, 1);
+  }
+  localStorage.setItem('pinnedHW', JSON.stringify(pinned));
+
+  // เล่นแอนิเมชันเลื่อนขึ้น/ลง
+  reorderWithAnimation(hwId, isPinning);
+}
+
+/*** FLIP Animation เทคนิค ***/
+function reorderWithAnimation(hwId, isPinning) {
+  const container = document.getElementById('hw-list');
+  const items = Array.from(container.children);
+
+  // STEP 1: บันทึกตำแหน่งก่อน reorder
+  const firstRects = items.map(el => el.getBoundingClientRect());
+
+  // STEP 2: เรียก render ใหม่ตาม pinned
+  const allHW = JSON.parse(localStorage.getItem('hw_data')) || [];
+  renderHomework(allHW);
+
+  // ให้ browser อัปเดต DOM ก่อน
+  requestAnimationFrame(() => {
+    const newItems = Array.from(container.children);
+    newItems.forEach((el, i) => {
+      // STEP 3: บันทึกตำแหน่งหลัง reorder
+      const lastRect = el.getBoundingClientRect();
+      const deltaY = firstRects[i].top - lastRect.top;
+
+      // เล่นแอนิเมชั่นจากตำแหน่งเก่า → ใหม่
+      el.style.transform = `translateY(${deltaY}px)`;
+      el.style.transition = 'transform 0s';
+      requestAnimationFrame(() => {
+        el.style.transform = '';
+        el.style.transition = 'transform 500ms';
+      });
+    });
+  });
+}
+
 </script>
 
      <a href='http://www.freevisitorcounters.com'>www.Freevisitorcounters</a> <script type='text/javascript' src='https://www.freevisitorcounters.com/auth.php?id=0c410dfcdd15ce30d800ce11733435bf89386a35'></script>
