@@ -1,131 +1,43 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>สมัครใช้บริการ</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- LIFF SDK -->
-  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade Service - ลงทะเบียน</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://developers.line.biz/sdk/js/v2/line.js"></script>
 </head>
-<body class="bg-gray-50 p-4">
-  <div class="max-w-md mx-auto bg-white rounded-2xl shadow p-6">
-    <!-- Status Bar -->
-    <div id="status-bar" class="flex justify-between mb-6">
-      <div class="flex-1 text-center" data-step="1">
-        <div class="step-circle bg-green-500 text-white w-8 h-8 rounded-full mx-auto flex items-center justify-center">1</div>
-        <p class="mt-2 text-sm" id="label-step-1">กรอกข้อมูล</p>
-      </div>
-      <div class="flex-1 text-center" data-step="2">
-        <div class="step-circle bg-gray-300 text-gray-600 w-8 h-8 rounded-full mx-auto flex items-center justify-center">2</div>
-        <p class="mt-2 text-sm" id="label-step-2">รอการตรวจสอบ</p>
-      </div>
-      <div class="flex-1 text-center" data-step="3">
-        <div class="step-circle bg-gray-300 text-gray-600 w-8 h-8 rounded-full mx-auto flex items-center justify-center">3</div>
-        <p class="mt-2 text-sm" id="label-step-3">เสร็จสิ้น</p>
-      </div>
-    </div>
-
-    <!-- Content Area -->
-    <div id="content-area">
-      <!-- Fill Info -->
-      <div id="step-1-content" class="space-y-4">
-        <button id="btn-line-login" class="w-full py-2 bg-green-500 text-white rounded-lg">ล็อกอินด้วยไลน์</button>
-        <div class="text-center">
-          <img src="https://i.postimg.cc/Dz7L0r5c/logo.png" alt="จ่ายเงิน QR Code" class="mx-auto w-40" />
+<body>
+    <div class="container">
+        <div class="status-bar">
+            <div class="status-item active" id="status-register">ลงทะเบียน</div>
+            <div class="status-item" id="status-pending">รอการตรวจสอบ</div>
+            <div class="status-item" id="status-completed">เสร็จสิ้น</div>
         </div>
-        <button id="btn-confirm" class="w-full py-2 bg-green-500 text-white rounded-lg hidden">ยืนยันลงทะเบียน</button>
-      </div>
 
-      <!-- Waiting Verification -->
-      <div id="step-2-content" class="hidden text-center space-y-4">
-        <img src="https://i.postimg.cc/Dz7L0r5c/logo.png" alt="รอการตรวจสอบ" class="mx-auto w-48" />
-        <p>อยู่ระหว่างการตรวจสอบโดยผู้ดูแล<br/>กระบวนการนี้จะเสร็จสิ้นภายใน 24 ชั่วโมง</p>
-      </div>
+        <div class="content-section" id="register-section">
+            <h2>ลงทะเบียนบริการ</h2>
+            <p>กรุณาเชื่อมต่อ LINE เพื่อดำเนินการต่อ</p>
+            <button class="line-login-btn" id="line-login-button">
+                <img src="https://developers.line.biz/assets/img/og/line-login-btn-base.png" alt="LINE Login">
+                ลงทะเบียนด้วย LINE
+            </button>
 
-      <!-- Completed -->
-      <div id="step-3-content" class="hidden text-center space-y-4">
-        <p class="text-green-600 font-semibold">ลงทะเบียนสำเร็จ!</p>
-        <button id="btn-reapply" class="w-full py-2 bg-blue-600 text-white rounded-lg">ลงทะเบียนอีกครั้ง</button>
-      </div>
+            <div id="payment-section" style="display: none;">
+                <h3>ชำระเงิน</h3>
+                <p>สแกน QR Code เพื่อชำระเงินด้วยพร้อมเพย์</p>
+                <div class="qr-code-placeholder">
+                    <img src="https://via.placeholder.com/200x200?text=QR+Code+PromptPay" alt="PromptPay QR Code">
+                </div>
+                <label for="slip-upload" class="upload-btn">อัปโหลดไฟล์สลิป</label>
+                <input type="file" id="slip-upload" accept="image/*" style="display: none;">
+                <span id="file-name-display">ยังไม่มีไฟล์ที่เลือก</span>
+
+                <button class="register-submit-btn" id="submit-registration-button">ลงทะเบียน</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
-    let userData = JSON.parse(localStorage.getItem('user')) || {};
-    let lineUserId = null;
-
-    // On load, check existing request status (by studentId instead of lineId)
-    window.addEventListener('DOMContentLoaded', () => {
-      if (!userData.studentId) {
-        renderStep(1);
-        return;
-      }
-      checkRequestStatus();
-    });
-
-    // LINE Login
-    document.getElementById('btn-line-login').addEventListener('click', async () => {
-      await liff.init({ liffId: '2007333047-XVaQjnmO' });
-      if (!liff.isLoggedIn()) await liff.login();
-      const profile = await liff.getProfile();
-      lineUserId = profile.userId;
-      document.getElementById('btn-line-login').classList.replace('bg-green-500', 'bg-blue-600');
-      document.getElementById('btn-line-login').textContent = 'สำเร็จ';
-      document.getElementById('btn-confirm').classList.remove('hidden');
-    });
-
-    // Confirm Registration -> send to GAS
-    document.getElementById('btn-confirm').addEventListener('click', async () => {
-      const payload = new URLSearchParams({
-        action: 'request',
-        name: userData.firstName,
-        surename: userData.lastName,
-        number: userData.no,
-        studentId: userData.studentId,
-        lineId: lineUserId,
-        timestamp: new Date().toISOString(),
-      });
-      await fetch(GAS_ENDPOINT + '?' + payload.toString());
-      renderStep(2, true);
-    });
-
-    // Reapply
-    document.getElementById('btn-reapply').addEventListener('click', () => {
-      renderStep(1);
-    });
-
-    // Fetch request status from GAS using studentId
-    async function checkRequestStatus() {
-      const res = await fetch(`${GAS_ENDPOINT}?action=status&studentId=${userData.studentId}`);
-      const data = await res.json();
-      if (data.status === 'pending') renderStep(2);
-      else if (data.status === 'approved') renderStep(3);
-      else renderStep(1);
-    }
-
-    function renderStep(step, animate = false) {
-      document.querySelectorAll('#status-bar [data-step]').forEach(el => {
-        const idx = +el.dataset.step;
-        const circle = el.querySelector('.step-circle');
-        if (idx < step) {
-          circle.className = 'step-circle bg-blue-600 text-white w-8 h-8 rounded-full mx-auto flex items-center justify-center';
-        } else if (idx === step) {
-          circle.className = 'step-circle bg-green-500 text-white w-8 h-8 rounded-full mx-auto flex items-center justify-center';
-        } else {
-          circle.className = 'step-circle bg-gray-300 text-gray-600 w-8 h-8 rounded-full mx-auto flex items-center justify-center';
-        }
-      });
-      [1,2,3].forEach(n => {
-        document.getElementById(`step-${n}-content`).classList.toggle('hidden', n !== step);
-      });
-      if (animate) {
-        const el = document.querySelector(`#label-step-${step}`);
-        el.classList.add('transition-transform', 'transform', 'scale-110');
-        setTimeout(() => el.classList.remove('scale-110'), 600);
-      }
-    }
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>
