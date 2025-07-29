@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // You need to create a LINE Login channel on LINE Developers console
     // and add 'http://localhost:5500/upgrade.html' (or your deployed URL) as a callback URL.
     liff.init({
-        liffId: '2007333047'
+        liffId: '2007333047-XVaQjnmO'
     }).then(() => {
         if (liff.isLoggedIn()) {
             liff.getProfile().then(profile => {
