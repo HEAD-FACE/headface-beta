@@ -82,11 +82,11 @@
     document.getElementById('btn-confirm').addEventListener('click', async () => {
       const payload = new URLSearchParams({
         action: 'request',
-        name: user.firstName,
-        surename: user.lastName,
-        number: user.no,
-        studentId: user.studentId,
-        lineId: user.lineId,
+        name: userData.firstName,
+        surename: userData.lastName,
+        number: userData.no,
+        studentId: userData.studentId,
+        lineId: userData.lineId,
         timestamp: new Date().toISOString(),
       });
       await fetch(GAS_ENDPOINT + '?' + payload.toString());
