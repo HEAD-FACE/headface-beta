@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>รางวัลที่แลกมา</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap');
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: #f0f5ff;
+      margin: 0; padding: 20px;
+      display: flex; justify-content: center;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 24px rgba(30,64,175,0.15);
+    }
+
+    h1 {
+      text-align: center;
+      color: #1e40af;
+      margin-bottom: 20px;
+    }
+
+    .reward-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .reward-card {
+      background: #e0e7ff;
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(30, 64, 175, 0.1);
+    }
+
+    .reward-info {
+      flex-grow: 1;
+      margin-right: 20px;
+    }
+
+    .reward-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1e3a8a;
+    }
+
+    .btn-use {
+      background: #2563eb;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+
+    .btn-use:hover {
+      background: #1e40af;
+    }
+
+    .btn-used {
+      background: #9ca3af;
+      cursor: default;
+    }
+
+    .no-reward {
+      text-align: center;
+      color: #475569;
+      margin-top: 40px;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>รางวัลที่แลกมา (BETA 1)</h1>
+    <div id="reward-list" class="reward-list">
+      กำลังโหลดรางวัล...
+    </div>
+  </div>
+
+  <script>
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec'; // URL ของคุณ
+
+    function loadUser() {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        alert('ไม่พบข้อมูลผู้ใช้ กรุณาล็อกอินก่อน');
+        return null;
+      }
+      return JSON.parse(userStr);
+    }
+
+    async function loadRedeemedRewards(userNo) {
+      try {
+        const res = await fetch(`${GAS_URL}?action=getRedeemedRewards&no=${encodeURIComponent(userNo)}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'โหลดข้อมูลล้มเหลว');
+
+        const listEl = document.getElementById('reward-list');
+        listEl.innerHTML = '';
+
+        if (data.rewards.length === 0) {
+          listEl.innerHTML = '<div class="no-reward">คุณยังไม่มีรางวัลที่แลกไว้</div>';
+          return;
+        }
+
+        data.rewards.forEach(r => {
+          const card = document.createElement('div');
+          card.className = 'reward-card';
+
+          const info = document.createElement('div');
+          info.className = 'reward-info';
+          info.innerHTML = `<div class="reward-name">${r.name}</div><div>แต้ม: ${r.price}</div>`;
+
+          const usedList = Array.isArray(r.usedList)
+            ? r.usedList.filter(e => e && e.trim() !== "")
+            : [];
+
+          const alreadyUsed = usedList.includes(String(userNo));
+
+          const btnUse = document.createElement('button');
+          btnUse.className = 'btn-use';
+
+          if (alreadyUsed) {
+            btnUse.textContent = 'ใช้แล้ว';
+            btnUse.classList.add('btn-used');
+            btnUse.disabled = true;
+          } else {
+            btnUse.textContent = 'ใช้รางวัล';
+            btnUse.onclick = () => useReward(r.id, btnUse);
+          }
+
+          card.appendChild(info);
+          card.appendChild(btnUse);
+          listEl.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        document.getElementById('reward-list').innerHTML = `<div class="no-reward">ไม่สามารถโหลดรางวัลได้: ${err.message}</div>`;
+      }
+    }
+
+    async function useReward(rewardId, buttonEl) {
+      const user = loadUser();
+      if (!user) return;
+
+      if (!confirm(`ต้องการใช้รางวัลนี้หรือไม่? รางวัล ID: ${rewardId}`)) return;
+
+      try {
+        const res = await fetch(`${GAS_URL}?action=useReward&no=${encodeURIComponent(user.no)}&rewardId=${encodeURIComponent(rewardId)}`);
+        const result = await res.json();
+
+        if (result.success) {
+          alert('ใช้รางวัลเรียบร้อยแล้ว');
+          // ✅ อัปเดตปุ่มทันทีโดยไม่ต้องโหลดใหม่
+          buttonEl.textContent = 'ใช้แล้ว';
+          buttonEl.classList.add('btn-used');
+          buttonEl.disabled = true;
+        } else {
+          alert('ไม่สามารถใช้รางวัลได้: ' + (result.message || 'เกิดข้อผิดพลาด'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('เกิดข้อผิดพลาดในการใช้รางวัล');
+      }
+    }
+
+    window.onload = () => {
+      const user = loadUser();
+      if (user) {
+        loadRedeemedRewards(user.no);
+      }
+    };
+  </script>
+</body>
+</html>
