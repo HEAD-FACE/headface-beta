@@ -284,10 +284,12 @@ function renderHomework(homeworks, allHomeworks = null) {
         }
         <!-- ปุ่มปักหมุด -->
         <button onclick="togglePin('${hw.id}', this)"
-                class="absolute top-2 right-2 text-xl focus:outline-none"
-                title="${isPinned ? 'ยกเลิกปักหมุด' : 'ปักหมุด'}">
-          ${isPinned ? '📍' : '📌'}
-        </button>
+        class="absolute top-2 right-2 text-xl focus:outline-none 
+               ${isPinned ? 'text-yellow-500' : 'text-gray-400'}"
+        title="${isPinned ? 'ยกเลิกปักหมุด' : 'ปักหมุด'}">
+  ${isPinned ? '📍' : '📌'}
+</button>
+
       </div>
     `;
   });
@@ -560,14 +562,25 @@ function togglePin(hwId, btnEl) {
   const idx = pinned.indexOf(hwId);
   const isPinning = idx === -1;
 
+  // ── 1) ไอคอนขยายเล็กน้อยแล้วกลับตัว
+  btnEl.animate(
+    [ { transform: 'scale(1.3)' }, { transform: 'scale(1)' } ],
+    { duration: 200 }
+  );
+
+  // ── 2) สลับสีไอคอนทันที
   if (isPinning) {
     pinned.push(hwId);
+    btnEl.classList.remove('text-gray-400');
+    btnEl.classList.add('text-yellow-500');
   } else {
     pinned.splice(idx, 1);
+    btnEl.classList.remove('text-yellow-500');
+    btnEl.classList.add('text-gray-400');
   }
   localStorage.setItem('pinnedHW', JSON.stringify(pinned));
 
-  // เล่นแอนิเมชันเลื่อนขึ้น/ลง
+  // ── 3) เรียก FLIP animation เพื่อเลื่อนกล่อง
   reorderWithAnimation(hwId, isPinning);
 }
 
