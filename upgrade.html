@@ -32,14 +32,14 @@
       <div id="step-1-content" class="space-y-4">
         <button id="btn-line-login" class="w-full py-2 bg-green-500 text-white rounded-lg">ล็อกอินด้วยไลน์</button>
         <div class="text-center">
-          <img src="https://i.postimg.cc/Dz7L0r5c/logo.png" alt="จ่ายเงิน QR Code" class="mx-auto w-40" />
+          <img src="/path/to/qr-code.png" alt="จ่ายเงิน QR Code" class="mx-auto w-40" />
         </div>
         <button id="btn-confirm" class="w-full py-2 bg-green-500 text-white rounded-lg hidden">ยืนยันลงทะเบียน</button>
       </div>
 
       <!-- Waiting Verification -->
       <div id="step-2-content" class="hidden text-center space-y-4">
-        <img src="https://i.postimg.cc/Dz7L0r5c/logo.png" alt="รอการตรวจสอบ" class="mx-auto w-48" />
+        <img src="/path/to/waiting-illustration.png" alt="รอการตรวจสอบ" class="mx-auto w-48" />
         <p>อยู่ระหว่างการตรวจสอบโดยผู้ดูแล<br/>กระบวนการนี้จะเสร็จสิ้นภายใน 24 ชั่วโมง</p>
       </div>
 
@@ -56,9 +56,9 @@
     let userData = JSON.parse(localStorage.getItem('user')) || {};
     let lineUserId = null;
 
-    // On load, check existing request status
+    // On load, check existing request status (by studentId instead of lineId)
     window.addEventListener('DOMContentLoaded', () => {
-      if (!userData.lineId) {
+      if (!userData.studentId) {
         renderStep(1);
         return;
       }
@@ -71,7 +71,6 @@
       if (!liff.isLoggedIn()) await liff.login();
       const profile = await liff.getProfile();
       lineUserId = profile.userId;
-      localStorage.setItem('user', JSON.stringify(userData));
       document.getElementById('btn-line-login').classList.replace('bg-green-500', 'bg-blue-600');
       document.getElementById('btn-line-login').textContent = 'สำเร็จ';
       document.getElementById('btn-confirm').classList.remove('hidden');
@@ -94,13 +93,12 @@
 
     // Reapply
     document.getElementById('btn-reapply').addEventListener('click', () => {
-      // Clear previous status, optionally remove request record
       renderStep(1);
     });
 
-    // Fetch request status from GAS
+    // Fetch request status from GAS using studentId
     async function checkRequestStatus() {
-      const res = await fetch(`${GAS_ENDPOINT}?action=status&lineId=${userData.lineId}`);
+      const res = await fetch(`${GAS_ENDPOINT}?action=status&studentId=${userData.studentId}`);
       const data = await res.json();
       if (data.status === 'pending') renderStep(2);
       else if (data.status === 'approved') renderStep(3);
@@ -108,7 +106,6 @@
     }
 
     function renderStep(step, animate = false) {
-      // Status circles
       document.querySelectorAll('#status-bar [data-step]').forEach(el => {
         const idx = +el.dataset.step;
         const circle = el.querySelector('.step-circle');
@@ -120,11 +117,9 @@
           circle.className = 'step-circle bg-gray-300 text-gray-600 w-8 h-8 rounded-full mx-auto flex items-center justify-center';
         }
       });
-      // Show content
       [1,2,3].forEach(n => {
         document.getElementById(`step-${n}-content`).classList.toggle('hidden', n !== step);
       });
-      // Optional animation
       if (animate) {
         const el = document.querySelector(`#label-step-${step}`);
         el.classList.add('transition-transform', 'transform', 'scale-110');
