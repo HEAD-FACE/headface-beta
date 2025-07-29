@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Brain Food – HEAD FACE</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary     : '#3B82F6',   // ฟ้า
+            primaryDark : '#1D4ED8',   // ฟ้าเข้ม
+            accent      : '#8B5CF6',   // ม่วง
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    .hide-scroll::-webkit-scrollbar{display:none}
+    .hide-scroll{-ms-overflow-style:none;scrollbar-width:none}
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-gradient-to-b from-primary to-accent/30">
+
+  <!-- ░░ Navbar ░░ -->
+  <nav class="flex items-center justify-between px-4 py-3 bg-primaryDark text-white shadow">
+    <h1 class="font-bold text-lg">Brain Food</h1>
+    <a href="home.html" class="hover:underline">กลับหน้าแรก</a>
+  </nav>
+
+  <!-- ░░ แถบเลือกวิชา ░░ -->
+  <section class="relative">
+    <div id="subjectBar"
+         class="hide-scroll flex gap-4 overflow-x-auto px-4 py-3 bg-white/80 backdrop-blur">
+      <!-- ปุ่มวิชาจะถูกเติมด้วย JS -->
+    </div>
+  </section>
+
+  <!-- ░░ พื้นที่แผนที่ ░░ -->
+  <main id="mapArea" class="flex-1 overflow-y-auto p-6"></main>
+
+  <!-- ░░ Templates ░░ -->
+  <template id="tpl-part">
+    <div class="flex flex-col items-center gap-2">
+      <img class="w-20 h-20 object-contain transition-all duration-300" />
+      <span class="text-sm text-center"></span>
+    </div>
+  </template>
+
+  <template id="tpl-bridge">
+    <div class="w-10 h-1 bg-primaryDark rounded"></div>
+  </template>
+
+  <!-- ░░ JavaScript ░░ -->
+  <script>
+  
+  /************* ค่าคงที่ *************/
+  const apiUrl      = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
+  const dishPending = 'https://i.postimg.cc/9Q00g2DS/image.png';         // ยังไม่ทำ
+  const dishDoneSet = [                                                  // ทำแล้ว (สุ่ม)
+    'https://i.postimg.cc/B6YW7jXP/3-20250705-150354-0000.png',
+    'https://i.postimg.cc/DybV5yFm/4-20250705-150354-0001.png',
+    'https://i.postimg.cc/tJwKy8dX/5-20250705-150354-0002.png',
+    'https://i.postimg.cc/mZnfQ1v0/6-20250705-150355-0003.png',
+    'https://i.postimg.cc/cCrppdn9/7-20250705-150355-0004.png',
+    'https://i.postimg.cc/PxFcz0Rm/20250705-150648-0000.png'
+  ];
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userNo = user.no || '17';   // เลขที่
+
+  /* รายชื่อวิชา: [รหัส, ป้ายที่แสดง] */
+  const subjects = [
+    ['ST','วิทย์'],   ['ET','อังกฤษ'],   ['TH','ไทย'],         ['MT','คณิต'],
+    ['SC','สังคม'],   ['HE','สุข'],      ['PE','พลศึกษา'],     ['HS','ประวัติศาสตร์'],
+    ['CH','จีน'],     ['ME','คณิตสากล'],['SE','วิทย์สากล'],   ['EN','ENS'],
+    ['SR','เทคโนโลยี'],['SW','คอม'],    ['SD','Web Design'],  ['AA','การงาน']
+  ];
+
+  /************* สร้างปุ่มวิชา *************/
+  const bar = document.getElementById('subjectBar');
+  subjects.forEach(([code,label],i)=>{
+    const b=document.createElement('button');
+    b.textContent = label;
+    b.dataset.code = code;
+    b.className = 'shrink-0 px-4 py-2 rounded-full text-sm ' +
+                 (i===0 ? 'bg-primary text-white' : 'bg-white text-primaryDark hover:bg-primary/10');
+    b.onclick = ()=> selectSubject(code,b);
+    bar.appendChild(b);
+  });
+
+  /************* เมื่อเลือกวิชา *************/
+  async function selectSubject(code,btn){
+    document.querySelectorAll('#subjectBar button')
+            .forEach(b=>b.className='shrink-0 px-4 py-2 rounded-full text-sm bg-white text-primaryDark hover:bg-primary/10');
+    btn.className='shrink-0 px-4 py-2 rounded-full text-sm bg-primary text-white';
+
+    mapArea.innerHTML='<p class="text-primaryDark">Loading…</p>';
+    try{
+      const res = await fetch(`${apiUrl}?action=getPartList&subject=${code}`);
+      const data= await res.json();
+      renderMap(data.chapters);
+    }catch(err){
+      mapArea.innerHTML='<p class="text-red-600">โหลดข้อมูลไม่ได้</p>';
+      console.error(err);
+    }
+  }
+
+  /************* วาดแผนที่ *************/
+  const tplPart   = document.getElementById('tpl-part').content;
+  const tplBridge = document.getElementById('tpl-bridge').content;
+  const mapArea   = document.getElementById('mapArea');
+
+  /* ❶ helper ใช้ซ้ำ – บังคับเป็น string, trim, split วรรค/คอมมา */
+function isDone(val){
+  const list = String(val ?? '')            // cast → string
+                .trim()                     // ตัดช่องว่างหัว-ท้าย
+                .split(/[\s,]+/)            // แยกด้วย space หรือ ,
+                .filter(Boolean);           // กำจัดช่องว่างล้วน
+  return list.includes(String(userNo));     // เทียบแบบ string
+}
+    
+  function renderMap(chapters){
+    mapArea.innerHTML='';
+    
+    chapters.forEach((chap,idx)=>{
+       const rawTitle = chap.parts[0]?.content || '';
+    const chapterName = rawTitle.split(',')[0].trim();      // "สารละลาย"
+
+    const h2 = document.createElement('h2');
+    h2.textContent = `บทที่ ${idx + 1} : ${chapterName}`;  // บทที่ 1 : สารละลาย
+    h2.className   = 'mt-6 mb-3 font-bold text-primaryDark';
+    mapArea.appendChild(h2);
+
+      /* แถวจาน */
+      const row=document.createElement('div');
+      row.className='flex items-center gap-3 flex-wrap';
+      mapArea.appendChild(row);
+
+      chap.parts.sort((a,b)=>a.part_no-b.part_no).forEach((p,i)=>{
+        const node=tplPart.cloneNode(true);
+        const img = node.querySelector('img');
+        const cap = node.querySelector('span');
+
+        const done = isDone(p.done_no)
+        img.src   = done ? randomDoneImg() : dishPending;
+        img.classList.toggle('opacity-30',!done);
+        cap.textContent=`Part ${p.part_no}`;
+
+        /* Rule: ต้องทำจานก่อนหน้าให้เสร็จ */
+        if(done || i===0 || prevDone(chap.parts,i)){
+          img.classList.add('cursor-pointer','hover:scale-105');
+          img.onclick=()=> startQuiz(chap.subject_id,p.part_no, done);
+        }
+
+        row.appendChild(node);
+        if(i<chap.parts.length-1) row.appendChild(tplBridge.cloneNode(true));
+      });
+
+      /* เส้นขั้นบท */
+      if(idx<chapters.length-1){
+        const line=document.createElement('div');
+        line.className='my-8 h-0.5 bg-accent/60 w-full';
+        mapArea.appendChild(line);
+      }
+    });
+  }
+
+  /* --- tool: ภาพจานทำแล้วแบบสุ่ม --- */
+  function randomDoneImg(){
+    return dishDoneSet[Math.floor(Math.random()*dishDoneSet.length)];
+  }
+
+  /* --- เช็กจานก่อนหน้าเสร็จหรือยัง --- */
+  function prevDone(parts,index){
+  if(index===0) return true;
+  const prev=parts[index-1];
+  const list = (prev.done_no ?? '').trim().split(/\s+/).filter(Boolean);
+  console.log('prevDone check:', list, 'userNo:', userNo, 'result:', list.includes(String(userNo)));
+  return list.includes(String(userNo));
+}
+
+  /* --- ไปหน้า quiz --- */
+  function startQuiz(subjectId,partNo, done){
+    localStorage.setItem('subjectId',subjectId);
+    localStorage.setItem('partNo',partNo);
+    localStorage.setItem('alreadyDone', done);
+    window.location.href='quiz.html';
+  }
+
+  /* โหลดวิชาแรกทันที */
+  selectSubject(subjects[0][0],bar.querySelector('button'));
+  </script>
+</body>
+</html>
