@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LINE Login Configuration ---
     const LINE_CHANNEL_ID = '2007333047';
-    const LINE_REDIRECT_URI = "https://head-face.github.io/headface-beta/upgrade.html";
+    const LINE_REDIRECT_URI = "https://melodic-sorbet-d3aa19.netlify.app/upgrade";
 
     // <<< สำคัญ: URL สำหรับ Google Apps Script (GAS) Web App ของคุณจริงๆ >>>
     // URL นี้จะถูกใช้โดย Proxy Server เท่านั้น
