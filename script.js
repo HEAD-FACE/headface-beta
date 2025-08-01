@@ -9,20 +9,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileNameDisplay = document.getElementById('file-name-display');
     const submitRegistrationButton = document.getElementById('submit-registration-button');
 
-    let lineUserId = null; // To store LINE User ID
-    let lineDisplayName = null; // To store LINE Display Name (optional)
+    let lineUserId = null;
+    let lineDisplayName = null;
 
     // --- LINE Login Configuration ---
-    // <<< สำคัญ: แทนที่ด้วย Channel ID และ Callback URL ของคุณ >>>
-    const LINE_CHANNEL_ID = '2007333047'; // Channel ID ของ LINE Login Channel
-    const LINE_REDIRECT_URI = "https://head-face.github.io/headface-beta/upgrade.html"; // URL ของหน้า upgrade.html ที่ LINE จะ redirect กลับมา
-    // Example: ถ้าเว็บของคุณคือ https://yourusername.github.io/your-repo/upgrade.html
-    // LINE_REDIRECT_URI จะเป็น 'https://yourusername.github.io/your-repo/upgrade.html'
+    const LINE_CHANNEL_ID = '2007333047';
+    const LINE_REDIRECT_URI = "https://head-face.github.io/headface-beta/upgrade.html";
 
-    // <<< สำคัญ: แทนที่ด้วย GAS Web App URL ของคุณ >>>
-    // นี่คือ URL ของ GAS Web App ที่จะทำหน้าที่แลก Code เป็น Access Token
-    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbx6kINHRlGK0o6dB27OW-Mwm6yN0QfC17Ve03qQmkPh-3704tRWZvIElmHyxL4rEelj/exec'; 
-    // ตัวอย่าง: 'https://script.google.com/macros/s/AKfycbx.../exec'
+    // <<< สำคัญ: URL สำหรับ Google Apps Script (GAS) Web App ของคุณจริงๆ >>>
+    // URL นี้จะถูกใช้โดย Proxy Server เท่านั้น
+    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
+    
+    // <<< สำคัญ: URL สำหรับเรียก Proxy Server ที่ Netlify Functions >>>
+    // นี่คือ URL ที่หน้าเว็บของคุณจะคุยด้วยจริงๆ
+    const PROXY_URL = '/.netlify/functions/proxy';
 
 
     // --- Function to update status bar ---
@@ -45,13 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LINE Login Handler ---
     function handleLineLogin() {
-        const state = generateRandomString(16); // สร้างค่า State เพื่อป้องกัน CSRF
-        localStorage.setItem('line_login_state', state); // บันทึกค่า State ใน localStorage
+        const state = generateRandomString(16);
+        localStorage.setItem('line_login_state', state);
 
-        // สร้าง URL สำหรับ LINE Authorization
         const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(LINE_REDIRECT_URI)}&state=${state}&scope=profile%20openid`;
         
-        // พาผู้ใช้ไปยังหน้า LINE Login
         window.location.href = lineAuthUrl;
     }
 
@@ -62,15 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const state = urlParams.get('state');
         const storedState = localStorage.getItem('line_login_state');
 
-        // ตรวจสอบ state เพื่อความปลอดภัย
         if (state && storedState && state === storedState) {
-            localStorage.removeItem('line_login_state'); // ลบ state ที่ใช้แล้ว
-            history.replaceState({}, document.title, window.location.pathname); // ลบ URL params ออกจาก Address bar
+            localStorage.removeItem('line_login_state');
+            history.replaceState({}, document.title, window.location.pathname);
 
             if (code) {
                 console.log('Received LINE authorization code:', code);
-                // ส่ง code ไปให้ GAS เพื่อแลก Access Token และดึงโปรไฟล์
-                fetch(GAS_TOKEN_EXCHANGE_URL, {
+                // เปลี่ยนการ fetch() ให้เรียก Proxy แทน GAS โดยตรง
+                fetch(`${PROXY_URL}?url=${encodeURIComponent(GAS_TOKEN_EXCHANGE_URL)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code: code, redirect_uri: LINE_REDIRECT_URI })
@@ -98,24 +95,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } else {
                 console.warn('LINE callback: No authorization code received.');
-                // ผู้ใช้อาจจะยกเลิกการล็อกอิน
             }
         } else if (state || storedState) {
             console.error('LINE callback: Invalid state parameter. Possible CSRF attack or invalid redirect.');
             alert('State ไม่ถูกต้อง กรุณาลองล็อกอิน LINE ใหม่.');
-            history.replaceState({}, document.title, window.location.pathname); // ลบ URL params ออก
+            history.replaceState({}, document.title, window.location.pathname);
         } else {
             console.log('No LINE login callback in progress.');
         }
     }
 
-    // --- Check for LINE Login callback on page load ---
     handleLineCallback();
 
-
-    // --- LINE Login Button Click Handler ---
     lineLoginButton.addEventListener('click', () => {
-        // ตรวจสอบว่ามี lineUserId อยู่แล้วหรือไม่ ก่อนจะเริ่มกระบวนการล็อกอิน
         if (!lineUserId) {
             handleLineLogin();
         } else {
@@ -123,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Handle file upload display ---
     slipUploadInput.addEventListener('change', (event) => {
         if (event.target.files.length > 0) {
             fileNameDisplay.textContent = event.target.files[0].name;
@@ -132,16 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Dummy user data from local storage (replace with your actual data retrieval) ---
-    // สำหรับการสาธิต, เราจะจำลองข้อมูลผู้ใช้
     let userData = null;
     try {
         const userJson = localStorage.getItem('user');
         if (userJson) {
             userData = JSON.parse(userJson);
-            console.log('User data loaded from local storage:', userData);
         } else {
-            console.warn('No user data found in local storage under key "user". Using dummy data.');
             userData = {
                 studentId: 56006,
                 no: 1,
@@ -161,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // --- Submit Registration Button Handler (Placeholder for GAS fetch) ---
     submitRegistrationButton.addEventListener('click', async () => {
         if (!lineUserId) {
             alert('กรุณาเชื่อมต่อ LINE ก่อนดำเนินการลงทะเบียน');
@@ -174,32 +160,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const slipFileName = slipUploadInput.files[0].name;
-
-        // Construct data for GAS
+        
         const registrationData = {
             name: userData.firstName,
             lastName: userData.lastName,
             no: userData.no,
             studentId: userData.studentId,
             lineUserId: lineUserId,
-            lineDisplayName: lineDisplayName, // เพิ่ม display name เข้าไป
-            date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+            lineDisplayName: lineDisplayName,
+            date: new Date().toISOString().split('T')[0],
             state: 'pending',
             slipFileName: slipFileName
         };
 
-        console.log('Sending registration data to GAS:', registrationData);
-
-        // --- Fetch to GAS (นี่คือ GAS Web App URL ที่คุณใช้ส่งข้อมูลการลงทะเบียน) ---
-        // ใช้ URL เดิมที่คุณใช้ส่งข้อมูลการลงทะเบียน
-        const gasWebAppURL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec'; 
-
+        const gasWebAppURL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
+        
         try {
             updateStatusBar('status-pending');
             submitRegistrationButton.disabled = true;
             submitRegistrationButton.textContent = 'กำลังดำเนินการ...';
 
-            const response = await fetch(gasWebAppURL, {
+            // เปลี่ยนการ fetch() ให้เรียก Proxy แทน GAS โดยตรง
+            const response = await fetch(`${PROXY_URL}?url=${encodeURIComponent(gasWebAppURL)}`, {
                 method: 'POST',
                 mode: 'cors',
                 headers: {
