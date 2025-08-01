@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // <<< สำคัญ: URL สำหรับเรียก Proxy Server ที่ Netlify Functions >>>
     // นี่คือ URL ที่หน้าเว็บของคุณจะคุยด้วยจริงๆ
-    const PROXY_URL = '/.netlify/functions/proxy';
+    const PROXY_URL = '/api/proxy';
 
 
     // --- Function to update status bar ---
