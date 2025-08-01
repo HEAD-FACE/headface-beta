@@ -1,9 +1,10 @@
 // functions/proxy.js (โค้ดที่แก้ไขแล้ว)
-const fetch = require('node-fetch');
+
+// ไม่ต้อง import node-fetch แล้ว
+// const fetch = require('node-fetch');
 
 exports.handler = async (event, context) => {
   try {
-    // เพิ่มการตรวจสอบ method เพื่อจัดการคำขอที่ไม่ใช่ POST
     if (event.httpMethod !== 'POST') {
       return {
         statusCode: 405,
@@ -12,8 +13,6 @@ exports.handler = async (event, context) => {
     }
 
     const gasUrl = event.queryStringParameters.url;
-    
-    // ตรวจสอบว่า event.body มีข้อมูลก่อนที่จะพยายาม Parse
     const body = event.body ? JSON.parse(event.body) : {};
 
     if (!gasUrl) {
@@ -23,8 +22,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // ส่งคำขอ POST ไปยัง GAS Web App
-    const gasResponse = await fetch(gasUrl, {
+    const gasResponse = await fetch(gasUrl, { // <<< ใช้ fetch ที่ติดมากับ Node.js เลย
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,18 +30,7 @@ exports.handler = async (event, context) => {
       body: JSON.stringify(body),
     });
 
-    // หาก Response จาก GAS ไม่ใช่ JSON ให้จัดการ Error ที่นี่
-    const contentType = gasResponse.headers.get('content-type');
-    let gasData;
-    if (contentType && contentType.includes('application/json')) {
-      gasData = await gasResponse.json();
-    } else {
-      // หรืออาจจะส่งข้อมูลดิบกลับไป
-      gasData = {
-        error: `Unexpected content type from GAS: ${contentType}`,
-        rawResponse: await gasResponse.text()
-      };
-    }
+    const gasData = await gasResponse.json();
 
     return {
       statusCode: gasResponse.status,
