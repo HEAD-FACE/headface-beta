@@ -1,11 +1,20 @@
-// ต้องติดตั้ง node-fetch ก่อน (npm install node-fetch)
+// functions/proxy.js (โค้ดที่แก้ไขแล้ว)
 const fetch = require('node-fetch');
 
 exports.handler = async (event, context) => {
   try {
-    // ดึง URL และ body จากคำขอของหน้าเว็บ
+    // เพิ่มการตรวจสอบ method เพื่อจัดการคำขอที่ไม่ใช่ POST
+    if (event.httpMethod !== 'POST') {
+      return {
+        statusCode: 405,
+        body: 'Method Not Allowed',
+      };
+    }
+
     const gasUrl = event.queryStringParameters.url;
-    const body = JSON.parse(event.body);
+    
+    // ตรวจสอบว่า event.body มีข้อมูลก่อนที่จะพยายาม Parse
+    const body = event.body ? JSON.parse(event.body) : {};
 
     if (!gasUrl) {
       return {
@@ -23,13 +32,23 @@ exports.handler = async (event, context) => {
       body: JSON.stringify(body),
     });
 
-    const gasData = await gasResponse.json();
+    // หาก Response จาก GAS ไม่ใช่ JSON ให้จัดการ Error ที่นี่
+    const contentType = gasResponse.headers.get('content-type');
+    let gasData;
+    if (contentType && contentType.includes('application/json')) {
+      gasData = await gasResponse.json();
+    } else {
+      // หรืออาจจะส่งข้อมูลดิบกลับไป
+      gasData = {
+        error: `Unexpected content type from GAS: ${contentType}`,
+        rawResponse: await gasResponse.text()
+      };
+    }
 
     return {
       statusCode: gasResponse.status,
       body: JSON.stringify(gasData),
       headers: {
-        // ตั้งค่า CORS headers ให้หน้าเว็บของคุณ
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
