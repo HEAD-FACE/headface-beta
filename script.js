@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // <<< สำคัญ: URL สำหรับ Google Apps Script (GAS) Web App ของคุณจริงๆ >>>
     // URL นี้จะถูกใช้โดย Proxy Server เท่านั้น
-    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
+    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbx6kINHRlGK0o6dB27OW-Mwm6yN0QfC17Ve03qQmkPh-3704tRWZvIElmHyxL4rEelj/exec';
     
     // <<< สำคัญ: URL สำหรับเรียก Proxy Server ที่ Netlify Functions >>>
     // นี่คือ URL ที่หน้าเว็บของคุณจะคุยด้วยจริงๆ
