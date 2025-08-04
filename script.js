@@ -21,45 +21,41 @@ response_type=code
     const statusPending = document.getElementById('status-pending');
 
     // --- ฟังก์ชันหลักในการจัดการสถานะ ---
-    async function handleLineRedirect() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
+   async function handleLineRedirect() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
 
-        if (code) {
-            console.log('Found LINE code:', code);
-            
-            try {
-                // ส่ง code ไปยัง GAS เพื่อแลกเป็น UserId
-                const response = await fetch(gasUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: "getUserId", code: code }),
-                });
+    if (code) {
+        console.log('Found LINE code:', code);
+        
+        try {
+            // เปลี่ยนจาก POST เป็น GET และส่งข้อมูลผ่าน URL
+            const fetchUrl = `${gasUrl}?action=getUserId&code=${code}`;
+            const response = await fetch(fetchUrl);
+            const result = await response.json();
 
-                const result = await response.json();
+            if (result.success) {
+                lineUserId = result.lineUserId;
+                console.log('Successfully retrieved Line User ID:', lineUserId);
 
-                if (result.success) {
-                    lineUserId = result.lineUserId;
-                    console.log('Successfully retrieved Line User ID:', lineUserId);
-
-                    // อัปเดต UI
-                    lineLoginButton.style.display = 'none';
-                    lineSuccessStatus.style.display = 'flex';
-                    stepPayment.style.display = 'block';
-                    stepSubmit.style.display = 'block';
-                    statusRegister.classList.add('active');
-                    statusPending.classList.add('active');
-                } else {
-                    console.error('Failed to get Line User ID:', result.error);
-                    alert('เกิดข้อผิดพลาดในการยืนยันตัวตนด้วย LINE');
-                }
-
-            } catch (error) {
-                console.error('Error fetching Line User ID:', error);
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+                // อัปเดต UI
+                lineLoginButton.style.display = 'none';
+                lineSuccessStatus.style.display = 'flex';
+                stepPayment.style.display = 'block';
+                stepSubmit.style.display = 'block';
+                statusRegister.classList.add('active');
+                statusPending.classList.add('active');
+            } else {
+                console.error('Failed to get Line User ID:', result.error);
+                alert('เกิดข้อผิดพลาดในการยืนยันตัวตนด้วย LINE');
             }
+
+        } catch (error) {
+            console.error('Error fetching Line User ID:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
         }
     }
+}
 
     // เรียกใช้ฟังก์ชันเมื่อโหลดหน้าเว็บ
     handleLineRedirect();
