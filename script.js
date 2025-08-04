@@ -14,16 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LINE Login Configuration ---
     const LINE_CHANNEL_ID = '2007333047';
-    const LINE_REDIRECT_URI = "https://melodic-sorbet-d3aa19.netlify.app/upgrade";
+    
+    // <<< สำคัญ: แก้ไข URL ของ Netlify ของคุณที่นี่ >>>
+    const NETLIFY_DOMAIN = 'https://melodic-sorbet-d3aa19.netlify.app';
+    const LINE_REDIRECT_URI = `${NETLIFY_DOMAIN}/upgrade.html`;
 
     // <<< สำคัญ: URL สำหรับ Google Apps Script (GAS) Web App ของคุณจริงๆ >>>
     // URL นี้จะถูกใช้โดย Proxy Server เท่านั้น
-    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbx6kINHRlGK0o6dB27OW-Mwm6yN0QfC17Ve03qQmkPh-3704tRWZvIElmHyxL4rEelj/exec';
+    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
     
     // <<< สำคัญ: URL สำหรับเรียก Proxy Server ที่ Netlify Functions >>>
     // นี่คือ URL ที่หน้าเว็บของคุณจะคุยด้วยจริงๆ
-    const PROXY_URL = '/api/proxy';
-
+    const PROXY_URL = `${NETLIFY_DOMAIN}/api/proxy`;
 
     // --- Function to update status bar ---
     function updateStatusBar(activeStatusId) {
