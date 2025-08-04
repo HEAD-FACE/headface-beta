@@ -3,41 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upgrade Service - ลงทะเบียน</title>
+    <title>อัปเกรดบริการ</title>
     <link rel="stylesheet" href="style.css">
-    </head>
+</head>
 <body>
+
     <div class="container">
+        <h1 class="title">อัปเกรดบริการ</h1>
+
         <div class="status-bar">
-            <div class="status-item active" id="status-register">ลงทะเบียน</div>
-            <div class="status-item" id="status-pending">รอการตรวจสอบ</div>
-            <div class="status-item" id="status-completed">เสร็จสิ้น</div>
-        </div>
-
-        <div class="content-section" id="register-section">
-            <h2>ลงทะเบียนบริการ</h2>
-            <p>กรุณาเชื่อมต่อ LINE เพื่อดำเนินการต่อ</p>
-            <button class="line-login-btn" id="line-login-button">
-                <img src="https://developers.line.biz/assets/img/og/line-login-btn-base.png" alt="LINE Login">
-                ลงทะเบียนด้วย LINE
-            </button>
-
-            <div id="payment-section" style="display: none;">
-                <h3>ชำระเงิน</h3>
-                <p>สแกน QR Code เพื่อชำระเงินด้วยพร้อมเพย์</p>
-                <div class="qr-code-placeholder">
-                    <img src="https://i.postimg.cc/Dz7L0r5c/logo.png" alt="PromptPay QR Code">
-                </div>
-                <label for="slip-upload" class="upload-btn">อัปโหลดไฟล์สลิป</label>
-                <input type="file" id="slip-upload" accept="image/*" style="display: none;">
-                <span id="file-name-display">ยังไม่มีไฟล์ที่เลือก</span>
-
-                <button class="register-submit-btn" id="submit-registration-button">ลงทะเบียน</button>
+            <div id="status-register" class="status-item active">
+                <div class="status-icon">1</div>
+                <div class="status-text">ลงทะเบียน</div>
+            </div>
+            <div class="status-separator"></div>
+            <div id="status-pending" class="status-item">
+                <div class="status-icon">2</div>
+                <div class="status-text">รอการตรวจสอบ</div>
+            </div>
+            <div class="status-separator"></div>
+            <div id="status-completed" class="status-item">
+                <div class="status-icon">3</div>
+                <div class="status-text">เสร็จสิ้น</div>
             </div>
         </div>
+
+        <div class="content-section">
+            <div id="step-register">
+                <h2>ลงทะเบียนด้วย LINE</h2>
+                <p>เพื่อยืนยันตัวตน กรุณาลงทะเบียนด้วยบัญชี LINE ของคุณ</p>
+                <button id="line-login-button" class="btn btn-line">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Line-icon.svg" alt="LINE icon">
+                    ลงทะเบียนด้วย LINE
+                </button>
+                <div id="line-success-status" class="success-message" style="display: none;">
+                    <span class="success-icon">&#10003;</span>
+                    ลงทะเบียน LINE สำเร็จแล้ว!
+                </div>
+            </div>
+
+            <div id="step-payment" style="display: none;">
+                <h2>ชำระเงิน</h2>
+                <p>สแกน QR Code เพื่อชำระเงินค่าบริการ</p>
+                <div class="qr-code-box">
+                    <img src="placeholder-qr.png" alt="QR Code พร้อมเพย์" class="qr-code-img">
+                </div>
+                <div class="upload-slip-box">
+                    <label for="slip-upload" class="upload-label">อัปโหลดสลิป</label>
+                    <input type="file" id="slip-upload" accept="image/*">
+                </div>
+            </div>
+            
+            <div id="step-submit" style="display: none;">
+                <h2>ยืนยันการสมัคร</h2>
+                <p>เมื่อชำระเงินและอัปโหลดสลิปแล้ว กรุณากดปุ่มเพื่อยืนยันการสมัคร</p>
+                <button id="submit-button" class="btn btn-primary">ยืนยันการสมัคร</button>
+            </div>
+        </div>
+
     </div>
 
     <script src="script.js"></script>
-    
 </body>
 </html>
