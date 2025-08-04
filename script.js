@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
     
     // <<< สำคัญ: URL สำหรับเรียก Proxy Server ที่ Netlify Functions >>>
-    // นี่คือ URL ที่หน้าเว็บของคุณจะคุยด้วยจริงๆ
     const PROXY_URL = `${NETLIFY_DOMAIN}/api/proxy`;
 
     // --- Function to update status bar ---
@@ -68,7 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (code) {
                 console.log('Received LINE authorization code:', code);
-                // เปลี่ยนการ fetch() ให้เรียก Proxy แทน GAS โดยตรง
+                
+                // เรียก Proxy ด้วย URL ของ GAS และส่งข้อมูลที่จำเป็นไป
                 fetch(`${PROXY_URL}?url=${encodeURIComponent(GAS_TOKEN_EXCHANGE_URL)}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitRegistrationButton.disabled = true;
             submitRegistrationButton.textContent = 'กำลังดำเนินการ...';
 
-            // เปลี่ยนการ fetch() ให้เรียก Proxy แทน GAS โดยตรง
+            // เรียก Proxy ด้วย URL ของ GAS และส่งข้อมูลที่จำเป็นไป
             const response = await fetch(`${PROXY_URL}?url=${encodeURIComponent(gasWebAppURL)}`, {
                 method: 'POST',
                 mode: 'cors',
