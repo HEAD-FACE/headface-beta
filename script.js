@@ -1,216 +1,111 @@
-// script.js
 document.addEventListener('DOMContentLoaded', () => {
+    // กำหนดค่า LINE Login
+    const lineLoginUrl = 'https://liff.line.me/2007333047-XVaQjnmO'; // ใส่ URL ที่ใช้สำหรับ LINE Login
+    let lineUserId = null;
+
+    // ดึงข้อมูลจาก Local Storage
+    const userData = JSON.parse(localStorage.getItem('user'));
+
+    // อัปเดต UI ตามข้อมูลใน Local Storage
+    if (userData) {
+        console.log('User data found:', userData);
+        // แสดงชื่อผู้ใช้ในหน้าเว็บ
+    }
+
+    // --- การจัดการ UI และสถานะ ---
     const lineLoginButton = document.getElementById('line-login-button');
-    const paymentSection = document.getElementById('payment-section');
+    const lineSuccessStatus = document.getElementById('line-success-status');
+    const stepRegister = document.getElementById('step-register');
+    const stepPayment = document.getElementById('step-payment');
+    const stepSubmit = document.getElementById('step-submit');
+    const submitButton = document.getElementById('submit-button');
+
     const statusRegister = document.getElementById('status-register');
     const statusPending = document.getElementById('status-pending');
-    const statusCompleted = document.getElementById('status-completed');
-    const slipUploadInput = document.getElementById('slip-upload');
-    const fileNameDisplay = document.getElementById('file-name-display');
-    const submitRegistrationButton = document.getElementById('submit-registration-button');
 
-    let lineUserId = null;
-    let lineDisplayName = null;
+    // ตรวจสอบว่ามี Line User ID อยู่ใน URL หรือไม่
+    const urlParams = new URLSearchParams(window.location.search);
+    const userIdFromUrl = urlParams.get('lineUserId');
+    if (userIdFromUrl) {
+        lineUserId = userIdFromUrl;
+        console.log('Line User ID from URL:', lineUserId);
 
-    // --- LINE Login Configuration ---
-    const LINE_CHANNEL_ID = '2007333047';
-    
-    // <<< สำคัญ: แก้ไข URL ของ Netlify ของคุณที่นี่ >>>
-    const NETLIFY_DOMAIN = 'https://melodic-sorbet-d3aa19.netlify.app';
-    const LINE_REDIRECT_URI = `${NETLIFY_DOMAIN}/upgrade`;
+        // เปลี่ยนปุ่มลงทะเบียน LINE เป็นสีน้ำเงินและแสดงข้อความสำเร็จ
+        lineLoginButton.style.display = 'none';
+        lineSuccessStatus.style.display = 'flex';
 
-    // <<< สำคัญ: URL สำหรับ Google Apps Script (GAS) Web App ของคุณจริงๆ >>>
-    // URL นี้จะถูกใช้โดย Proxy Server เท่านั้น
-    const GAS_TOKEN_EXCHANGE_URL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
-    
-    // <<< สำคัญ: URL สำหรับเรียก Proxy Server ที่ Netlify Functions >>>
-    const PROXY_URL = `${NETLIFY_DOMAIN}/api/proxy`;
+        // แสดงส่วนการชำระเงินและปุ่มยืนยัน
+        stepPayment.style.display = 'block';
+        stepSubmit.style.display = 'block';
 
-    // --- Function to update status bar ---
-    function updateStatusBar(activeStatusId) {
-        [statusRegister, statusPending, statusCompleted].forEach(item => {
-            item.classList.remove('active');
-        });
-        document.getElementById(activeStatusId).classList.add('active');
+        // อัปเดตแถบสถานะ
+        statusRegister.classList.add('active');
+        statusPending.classList.add('active');
     }
 
-    // --- Helper function to generate random string for state ---
-    function generateRandomString(length) {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
-    }
+    // --- Event Listeners ---
 
-    // --- LINE Login Handler ---
-    function handleLineLogin() {
-        const state = generateRandomString(16);
-        localStorage.setItem('line_login_state', state);
-
-        const lineAuthUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${LINE_CHANNEL_ID}&redirect_uri=${encodeURIComponent(LINE_REDIRECT_URI)}&state=${state}&scope=profile%20openid`;
-        
-        window.location.href = lineAuthUrl;
-    }
-
-    // --- Handle Callback from LINE after login ---
-    function handleLineCallback() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-        const storedState = localStorage.getItem('line_login_state');
-
-        if (state && storedState && state === storedState) {
-            localStorage.removeItem('line_login_state');
-            history.replaceState({}, document.title, window.location.pathname);
-
-            if (code) {
-                console.log('Received LINE authorization code:', code);
-                
-                // เรียก Proxy ด้วย URL ของ GAS และส่งข้อมูลที่จำเป็นไป
-                fetch(`${PROXY_URL}?url=${encodeURIComponent(GAS_TOKEN_EXCHANGE_URL)}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: code, redirect_uri: LINE_REDIRECT_URI })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success' && data.userId) {
-                        lineUserId = data.userId;
-                        lineDisplayName = data.displayName || 'LINE User';
-                        console.log('LINE Login successful! User ID:', lineUserId, 'Display Name:', lineDisplayName);
-                        
-                        lineLoginButton.textContent = `LINE เชื่อมต่อสำเร็จ! (${lineDisplayName})`;
-                        lineLoginButton.classList.add('success');
-                        lineLoginButton.disabled = true;
-                        paymentSection.style.display = 'block';
-                        updateStatusBar('status-register');
-                    } else {
-                        console.error('Failed to get LINE user data:', data.message || data.error);
-                        alert('ล็อกอิน LINE ไม่สำเร็จ: ' + (data.message || data.error));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error during LINE token exchange:', error);
-                    alert('เกิดข้อผิดพลาดในการแลก Token: ' + error.message);
-                });
-            } else {
-                console.warn('LINE callback: No authorization code received.');
-            }
-        } else if (state || storedState) {
-            console.error('LINE callback: Invalid state parameter. Possible CSRF attack or invalid redirect.');
-            alert('State ไม่ถูกต้อง กรุณาลองล็อกอิน LINE ใหม่.');
-            history.replaceState({}, document.title, window.location.pathname);
-        } else {
-            console.log('No LINE login callback in progress.');
-        }
-    }
-
-    handleLineCallback();
-
+    // 1. กดปุ่ม 'ลงทะเบียนด้วย LINE'
     lineLoginButton.addEventListener('click', () => {
-        if (!lineUserId) {
-            handleLineLogin();
-        } else {
-            alert('คุณได้เชื่อมต่อ LINE สำเร็จแล้ว!');
-        }
+        // Redirection ไปยังหน้า LINE Login
+        window.location.href = lineLoginUrl;
     });
 
-    slipUploadInput.addEventListener('change', (event) => {
-        if (event.target.files.length > 0) {
-            fileNameDisplay.textContent = event.target.files[0].name;
-        } else {
-            fileNameDisplay.textContent = 'ยังไม่มีไฟล์ที่เลือก';
-        }
-    });
-
-    let userData = null;
-    try {
-        const userJson = localStorage.getItem('user');
-        if (userJson) {
-            userData = JSON.parse(userJson);
-        } else {
-            userData = {
-                studentId: 56006,
-                no: 1,
-                firstName: "ณัฐธีร์",
-                lastName: "ชาติชีวินทร์",
-                points: ""
-            };
-        }
-    } catch (e) {
-        console.error('Error parsing user data from local storage:', e);
-        userData = {
-            studentId: 56006,
-            no: 1,
-            firstName: "ณัฐธีร์",
-            lastName: "ชาติชีวินทร์",
-            points: ""
-        };
-    }
-
-    submitRegistrationButton.addEventListener('click', async () => {
+    // 2. กดปุ่ม 'ยืนยันการสมัคร'
+    submitButton.addEventListener('click', async () => {
         if (!lineUserId) {
-            alert('กรุณาเชื่อมต่อ LINE ก่อนดำเนินการลงทะเบียน');
+            alert('กรุณาลงทะเบียนด้วย LINE ก่อน');
             return;
         }
 
-        if (!slipUploadInput.files.length) {
-            alert('กรุณาอัปโหลดสลิปการชำระเงิน');
+        if (!userData) {
+            alert('ไม่พบข้อมูลผู้ใช้งาน กรุณาลองใหม่');
             return;
         }
 
-        const slipFileName = slipUploadInput.files[0].name;
-        
-        const registrationData = {
+        // เตรียมข้อมูลที่จะส่งไป Google Apps Script
+        const data = {
             name: userData.firstName,
             lastName: userData.lastName,
             no: userData.no,
             studentId: userData.studentId,
-            lineUserId: lineUserId,
-            lineDisplayName: lineDisplayName,
-            date: new Date().toISOString().split('T')[0],
-            state: 'pending',
-            slipFileName: slipFileName
+            lineUserId: lineUserId
         };
 
-        const gasWebAppURL = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
-        
+        // ส่งข้อมูลไปยัง Google Apps Script
         try {
-            updateStatusBar('status-pending');
-            submitRegistrationButton.disabled = true;
-            submitRegistrationButton.textContent = 'กำลังดำเนินการ...';
-
-            // เรียก Proxy ด้วย URL ของ GAS และส่งข้อมูลที่จำเป็นไป
-            const response = await fetch(`${PROXY_URL}?url=${encodeURIComponent(gasWebAppURL)}`, {
+            const gasUrl = 'YOUR_GAS_WEB_APP_URL'; // ใส่ URL ของ GAS Web App ที่เผยแพร่แล้ว
+            const response = await fetch(gasUrl, {
                 method: 'POST',
-                mode: 'cors',
+                mode: 'no-cors', // เนื่องจากเป็น Cross-Origin Request
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(registrationData),
+                body: JSON.stringify(data),
             });
 
-            const result = await response.json();
+            // GAS ไม่ได้คืนค่าอะไรกลับมาในโหมด 'no-cors' แต่เราสามารถถือว่าสำเร็จได้ถ้าไม่มี error
+            alert('ลงทะเบียนสำเร็จแล้ว! โปรดรอการตรวจสอบ');
 
-            if (result.status === 'success') {
-                alert('ลงทะเบียนสำเร็จ! กรุณารอการตรวจสอบ');
-                updateStatusBar('status-completed');
-                submitRegistrationButton.textContent = 'ลงทะเบียนสำเร็จ';
-                submitRegistrationButton.classList.add('success');
-            } else {
-                alert('ลงทะเบียนไม่สำเร็จ: ' + result.message);
-                updateStatusBar('status-register');
-                submitRegistrationButton.disabled = false;
-                submitRegistrationButton.textContent = 'ลงทะเบียน';
-            }
+            // อัปเดตแถบสถานะเป็นเสร็จสิ้น
+            statusPending.classList.remove('active');
+            document.getElementById('status-completed').classList.add('active');
+
+            // ซ่อนปุ่มต่างๆ และแสดงข้อความเสร็จสิ้น
+            stepRegister.style.display = 'none';
+            stepPayment.style.display = 'none';
+            stepSubmit.style.display = 'none';
+
         } catch (error) {
-            console.error('Error submitting registration:', error);
-            alert('เกิดข้อผิดพลาดในการส่งข้อมูล: ' + error.message);
-            updateStatusBar('status-register');
-            submitRegistrationButton.disabled = false;
-            submitRegistrationButton.textContent = 'ลงทะเบียน';
+            console.error('Error submitting data:', error);
+            alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
         }
+    });
+
+    // 3. จัดการการอัปโหลดไฟล์สลิป (ส่วนนี้ยังไม่ได้ส่งข้อมูลจริง)
+    document.getElementById('slip-upload').addEventListener('change', (e) => {
+        const fileName = e.target.files[0].name;
+        alert(`ไฟล์ "${fileName}" ถูกเลือกแล้ว`);
+        // ในระบบจริง จะต้องมีการจัดการและส่งไฟล์นี้ไปยัง Google Drive หรือที่อื่น
     });
 });
