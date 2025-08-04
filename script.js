@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // ส่งข้อมูลไปยัง Google Apps Script
         try {
-            const gasUrl = 'YOUR_GAS_WEB_APP_URL'; // ใส่ URL ของ GAS Web App ที่เผยแพร่แล้ว
+            const gasUrl = 'https://script.google.com/macros/s/AKfycbxq66DgAYE-sEiTGYCdBuMcX6Pa9RCIwUPEvmadhGFImrsoYmKplV4E7goUz8zrpsPuvQ/exec'; // ใส่ URL ของ GAS Web App ที่เผยแพร่แล้ว
             const response = await fetch(gasUrl, {
                 method: 'POST',
                 mode: 'no-cors', // เนื่องจากเป็น Cross-Origin Request
