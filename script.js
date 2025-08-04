@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // กำหนดค่า LINE Login
-    const lineLoginUrl = 'https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2007333047&redirect_uri=https://head-face.github.io/headface-beta/upgrade.html
-&state=abcdefghijklmnopqrstuvwxyz&scope=profile%20openid'; // ใส่ URL ที่ใช้สำหรับ LINE Login
+    const lineLoginUrl = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2007333047&redirect_uri=https://head-face.github.io/headface-beta/upgrade.html
+&state=abcdefghijklmnopqrstuvwxyz&scope=profile%20openid"; // ใส่ URL ที่ใช้สำหรับ LINE Login
     let lineUserId = null;
 
     // ดึงข้อมูลจาก Local Storage
