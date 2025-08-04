@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // <<< สำคัญ: แก้ไข URL ของ Netlify ของคุณที่นี่ >>>
     const NETLIFY_DOMAIN = 'https://melodic-sorbet-d3aa19.netlify.app';
-    const LINE_REDIRECT_URI = `${NETLIFY_DOMAIN}/upgrade.html`;
+    const LINE_REDIRECT_URI = `${NETLIFY_DOMAIN}/upgrade`;
 
     // <<< สำคัญ: URL สำหรับ Google Apps Script (GAS) Web App ของคุณจริงๆ >>>
     // URL นี้จะถูกใช้โดย Proxy Server เท่านั้น
