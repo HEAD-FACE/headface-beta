@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const gasUrl = 'https://script.google.com/macros/s/AKfycbxq66DgAYE-sEiTGYCdBuMcX6Pa9RCIwUPEvmadhGFImrsoYmKplV4E7goUz8zrpsPuvQ/exec'; // URL ของ GAS Web App ที่เผยแพร่แล้ว
+    const gasUrl = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec'; // URL ของ GAS Web App ที่เผยแพร่แล้ว
     const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?
 response_type=code
 &client_id=2007333047
