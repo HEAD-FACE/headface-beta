@@ -14,7 +14,9 @@ response_type=code
     const userData = JSON.parse(localStorage.getItem('user'));
     if (!userData) {
         console.error('ไม่พบข้อมูลผู้ใช้ใน Local Storage');
-        // อาจจะ Redirect ผู้ใช้ไปหน้าล็อกอินหลัก
+        alert('ไม่พบข้อมูลผู้ใช้ กรุณาลองล็อกอินอีกครั้ง');
+        // คุณสามารถเพิ่มโค้ดเพื่อ Redirect ผู้ใช้ไปยังหน้าล็อกอินหลักได้ที่นี่
+        return; 
     }
 
     // อ้างอิง Element ต่างๆ ในหน้าเว็บ
@@ -24,7 +26,6 @@ response_type=code
     const stepPayment = document.getElementById('step-payment');
     const stepSubmit = document.getElementById('step-submit');
     const submitButton = document.getElementById('submit-button');
-    const submitForm = document.getElementById('submit-form');
 
     const statusRegister = document.getElementById('status-register');
     const statusPending = document.getElementById('status-pending');
@@ -32,33 +33,35 @@ response_type=code
 
     /**
      * ฟังก์ชันสำหรับจัดการการ Redirect จาก LINE Login
-     * จะตรวจสอบ URL เพื่อดึง 'code' และนำไปแลกเป็น 'lineUserId'
+     * จะตรวจสอบ URL เพื่อดึง 'code' และนำไปแลกเป็น 'lineUserId' ผ่าน GAS
      */
     async function handleLineRedirect() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         
+        // ตรวจสอบว่ามี lineUserId เก็บไว้ใน session storage หรือไม่
+        const storedLineUserId = sessionStorage.getItem('lineUserId');
+        if (storedLineUserId) {
+            lineUserId = storedLineUserId;
+            // อัปเดต UI เหมือนกับว่าเพิ่งล็อกอินสำเร็จ
+            updateUIForSuccessfulLogin();
+            return;
+        }
+
         if (code) {
             console.log('พบ LINE code:', code);
             
             try {
-                // ส่ง 'code' ไปยัง GAS Web App เพื่อแลกเป็น UserId (ใช้ GET เพื่อเลี่ยง CORS)
+                // ส่ง 'code' ไปยัง GAS Web App เพื่อแลกเป็น UserId
                 const fetchUrl = `${gasUrl}?action=getUserId&code=${code}`;
                 const response = await fetch(fetchUrl);
                 const result = await response.json();
 
                 if (result.success) {
                     lineUserId = result.lineUserId;
+                    sessionStorage.setItem('lineUserId', lineUserId); // เก็บ userId ไว้ใน session storage
                     console.log('ดึง Line User ID สำเร็จ:', lineUserId);
-
-                    // อัปเดต UI ให้เข้าสู่สถานะ 'รอการตรวจสอบ'
-                    lineLoginButton.style.display = 'none';
-                    lineSuccessStatus.style.display = 'flex';
-                    stepPayment.style.display = 'block';
-                    stepSubmit.style.display = 'block';
-                    
-                    statusRegister.classList.add('active');
-                    statusPending.classList.add('active');
+                    updateUIForSuccessfulLogin();
                 } else {
                     console.error('ไม่สามารถดึง Line User ID ได้:', result.error);
                     alert('เกิดข้อผิดพลาดในการยืนยันตัวตนด้วย LINE');
@@ -75,6 +78,19 @@ response_type=code
         }
     }
 
+    /**
+     * ฟังก์ชันสำหรับอัปเดต UI เมื่อล็อกอินด้วย LINE สำเร็จ
+     */
+    function updateUIForSuccessfulLogin() {
+        lineLoginButton.style.display = 'none';
+        lineSuccessStatus.style.display = 'flex';
+        stepPayment.style.display = 'block';
+        stepSubmit.style.display = 'block';
+        
+        statusRegister.classList.add('active');
+        statusPending.classList.add('active');
+    }
+
     // --- Event Listeners ---
 
     // 1. เมื่อหน้าเว็บโหลดเสร็จ ให้เรียกฟังก์ชันจัดการ Redirect
@@ -86,38 +102,46 @@ response_type=code
     });
 
     // 3. เมื่อกดปุ่ม 'ยืนยันการสมัคร'
-    submitButton.addEventListener('click', () => {
+    submitButton.addEventListener('click', async () => {
         if (!lineUserId) {
             alert('กรุณาลงทะเบียนด้วย LINE ก่อน');
             return;
         }
 
-        if (!userData) {
-            alert('ไม่พบข้อมูลผู้ใช้งาน กรุณาลองใหม่');
-            return;
+        try {
+            // เตรียม URL สำหรับส่งข้อมูลด้วย GET
+            const saveUrl = `${gasUrl}?action=saveRequest` +
+                            `&name=${encodeURIComponent(userData.firstName)}` +
+                            `&lastName=${encodeURIComponent(userData.lastName)}` +
+                            `&no=${encodeURIComponent(userData.no)}` +
+                            `&studentId=${encodeURIComponent(userData.studentId)}` +
+                            `&lineUserId=${encodeURIComponent(lineUserId)}`;
+
+            // ใช้ fetch ด้วย GET method เพื่อหลีกเลี่ยงปัญหา CORS
+            const response = await fetch(saveUrl);
+            const result = await response.json();
+
+            if (result.success) {
+                alert('ลงทะเบียนสำเร็จแล้ว! โปรดรอการตรวจสอบ');
+                
+                // อัปเดต UI และสถานะทันที เพื่อให้ผู้ใช้ได้รับ Feedback
+                statusPending.classList.remove('active');
+                statusCompleted.classList.add('active');
+                stepRegister.style.display = 'none';
+                stepPayment.style.display = 'none';
+                stepSubmit.style.display = 'none';
+                
+                // ล้าง lineUserId ออกจาก session storage
+                sessionStorage.removeItem('lineUserId');
+            } else {
+                console.error('Error submitting data:', result.error);
+                alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+            }
+
+        } catch (error) {
+            console.error('Error submitting data:', error);
+            alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
         }
-
-        // นำข้อมูลไปใส่ใน Form ที่ซ่อนไว้
-        document.getElementById('form-name').value = userData.firstName;
-        document.getElementById('form-lastName').value = userData.lastName;
-        document.getElementById('form-no').value = userData.no;
-        document.getElementById('form-studentId').value = userData.studentId;
-        document.getElementById('form-lineUserId').value = lineUserId;
-
-        // ตั้งค่า action ของ Form ไปยัง GAS URL ที่ถูกต้อง
-        submitForm.action = gasUrl;
-
-        // สั่งให้ Form ส่งข้อมูล (Submit)
-        // การใช้วิธีนี้จะหลีกเลี่ยงปัญหา CORS
-        submitForm.submit();
-
-        // อัปเดต UI และสถานะทันที เพื่อให้ผู้ใช้ได้รับ Feedback
-        alert('ลงทะเบียนสำเร็จแล้ว! โปรดรอการตรวจสอบ');
-        statusPending.classList.remove('active');
-        statusCompleted.classList.add('active');
-        stepRegister.style.display = 'none';
-        stepPayment.style.display = 'none';
-        stepSubmit.style.display = 'none';
     });
 
     // 4. จัดการการอัปโหลดไฟล์สลิป (เฉพาะการแสดงผล)
