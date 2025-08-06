@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าจัดการผู้ดูแล</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* เพิ่ม CSS สำหรับหน้านี้โดยเฉพาะ */
+        body {
+            background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+            color: #f0f4f8;
+        }
+        .container {
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .user-list {
+            margin-top: 20px;
+        }
+        .user-card {
+            background-color: #fff;
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-info h3 {
+            margin: 0 0 5px 0;
+        }
+        .user-info p {
+            margin: 0;
+            font-size: 0.9em;
+        }
+        .confirm-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .confirm-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>รายการผู้สมัคร</h1>
+        <div id="user-list" class="user-list">
+            </div>
+    </div>
+
+    <script src="develop.js"></script>
+</body>
+</html>
