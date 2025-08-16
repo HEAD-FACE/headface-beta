@@ -1,24 +1,18 @@
-// This is a new, simplified, and robust script.js
+// JavaScript code for the Navbar
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
 
-    // A single function to toggle the menu state
-    const toggleMenu = () => {
-        mobileMenu.classList.toggle('active');
-    };
-
-    // Event listener for the hamburger icon
+    // Check if the elements exist before adding event listeners
     if (hamburger && mobileMenu) {
-        hamburger.addEventListener('click', (e) => {
-            e.stopPropagation(); // Stop the click from bubbling up
-            toggleMenu();
+        hamburger.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
         });
 
-        // Event listener to close the menu when clicking outside of it
+        // Close the menu when clicking outside of it
         document.addEventListener('click', (e) => {
-            if (mobileMenu.classList.contains('active') && !hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
-                toggleMenu();
+            if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target) && mobileMenu.classList.contains('active')) {
+                mobileMenu.classList.remove('active');
             }
         });
     }
