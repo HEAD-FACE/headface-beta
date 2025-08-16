@@ -2,27 +2,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
-    let isAnimating = false;
 
     // A single function to toggle the menu state
     const toggleMenu = () => {
-        if (isAnimating) return; // Prevent new actions during animation
-
-        if (mobileMenu.classList.contains('active')) {
-            // If the menu is OPEN, initiate the closing animation
-            isAnimating = true;
-            mobileMenu.classList.add('closing');
-
-            // Set a timeout to remove the 'active' and 'closing' classes
-            // once the animation is complete (total animation time is 1 second)
-            setTimeout(() => {
-                mobileMenu.classList.remove('active', 'closing');
-                isAnimating = false;
-            }, 1000);
-        } else {
-            // If the menu is CLOSED, open it instantly
-            mobileMenu.classList.add('active');
-        }
+        mobileMenu.classList.toggle('active');
     };
 
     // Event listener for the hamburger icon
