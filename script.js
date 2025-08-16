@@ -77,8 +77,7 @@ response_type=code
             stepPayment.style.display = 'none';
             stepSubmit.style.display = 'none';
             statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ';
-            // เพิ่มปุ่มกลับหน้าหลัก
-            backToMainButton.style.display = 'block'; 
+
         } else if (status === 'success') {
             statusRegister.classList.add('active');
             statusPending.classList.remove('active');
@@ -93,7 +92,7 @@ response_type=code
 
         } else {
             statusRegister.classList.add('active');
-            backToMainButton.style.display = 'none';
+
         }
     }
 
