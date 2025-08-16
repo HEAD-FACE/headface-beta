@@ -4,12 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     hamburger.addEventListener('click', () => {
         mobileMenu.classList.toggle('active');
-        hamburger.classList.toggle('active');
+        hamburger.classList.toggle('active'); // เพิ่ม/ลบคลาส active ให้ hamburger ด้วย
     });
 
-    // ปิดเมนูเมื่อคลิกนอกพื้นที่
+    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
     document.addEventListener('click', (e) => {
-        // ตรวจสอบว่าไม่ได้คลิกที่ hamburger หรือ mobileMenu
         if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
             mobileMenu.classList.remove('active');
             hamburger.classList.remove('active');
