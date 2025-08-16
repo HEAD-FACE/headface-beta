@@ -200,6 +200,8 @@ p {
 }
 
 /* CSS สำหรับ Navbar และ Mobile Menu */
+       
+        /* CSS สำหรับ Navbar (เพื่อแก้ไขปัญหานี้ ผมจะรวมโค้ดไว้ในนี้ก่อน) */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -210,7 +212,7 @@ p {
 
         /* Navbar */
         .navbar {
-            background-color: transparent; /* เปลี่ยนเป็นไม่มีพื้นหลัง */
+            background-color: transparent; /* ไม่มีพื้นหลัง */
             color: white;
             padding: 1rem;
             position: fixed;
@@ -229,17 +231,17 @@ p {
             padding: 0 1rem;
             position: relative;
         }
+
         .logo {
             position: absolute;
             left: 1rem;
             font-size: 1.5rem;
             font-weight: bold;
-            color: black; /* เปลี่ยนสีโลโก้ให้มองเห็นบนพื้นขาว */
+            color: black;
             text-decoration: none;
             transition: color 0.3s;
         }
-
-        /* Hamburger Menu */
+        
         .hamburger {
             display: none;
             cursor: pointer;
@@ -251,28 +253,23 @@ p {
         .hamburger .bar {
             width: 25px;
             height: 3px;
-            background-color: black; /* เปลี่ยนสีขีดให้มองเห็นบนพื้นขาว */
+            background-color: black;
             transition: all 0.3s ease-in-out;
-        }
-
-        /* Desktop Menu (ซ่อนไปก่อน) */
-        .nav-menu {
-            display: none;
         }
 
         /* Mobile Menu */
         .mobile-menu {
             list-style: none;
             position: fixed;
-            top: 60px; /* เลื่อนลงมาให้ต่ำกว่า Navbar */
-            right: 1rem; /* ชิดขวา */
+            top: 60px;
+            right: 1rem;
             padding: 0;
             z-index: 999;
             text-align: right;
         }
 
         .mobile-menu li {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             opacity: 0;
             transform: translateX(100%);
             animation-fill-mode: backwards;
@@ -289,15 +286,18 @@ p {
             color: white;
             text-decoration: none;
             font-size: 1.2rem;
-            display: block;
+            display: inline-block;
             padding: 10px 20px;
-            background-color: black; /* พื้นหลังสีดำ */
-            border: 2px solid white; /* ขอบสีขาว */
-            border-radius: 50px; /* ทำให้เป็นรูปแคปซูล */
+            background-color: black;
+            border: 2px solid white;
+            border-radius: 50px;
             transition: background-color 0.3s;
             text-align: center;
         }
-
+        .mobile-nav-item:hover {
+            background-color: #333;
+        }
+        
         /* Keyframes for Animation */
         @keyframes slideFromRight {
             from {
@@ -309,7 +309,12 @@ p {
                 transform: translateX(0);
             }
         }
-
+        
+        /* Desktop Menu (ซ่อนใน Mobile View) */
+        .nav-menu {
+            display: none;
+        }
+        
         /* Responsive Design */
         @media (min-width: 769px) {
             .hamburger {
@@ -327,5 +332,4 @@ p {
                 display: flex;
             }
         }
-   
 
