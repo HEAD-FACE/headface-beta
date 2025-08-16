@@ -1,23 +1,22 @@
-// โค้ดนี้จะต้องอยู่ในไฟล์ script.js ของคุณ
+// โค้ดสำหรับ Navbar
 document.addEventListener('DOMContentLoaded', () => {
-    // โค้ดสำหรับ Navbar
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
 
+    // ตรวจสอบว่า Element มีอยู่จริง ก่อนที่จะเพิ่ม Event Listener
     if (hamburger && mobileMenu) {
         hamburger.addEventListener('click', () => {
             mobileMenu.classList.toggle('active');
-            hamburger.classList.toggle('active');
         });
 
         // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
         document.addEventListener('click', (e) => {
-            if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+            if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target) && mobileMenu.classList.contains('active')) {
                 mobileMenu.classList.remove('active');
-                hamburger.classList.remove('active');
             }
         });
     }
+});
 document.addEventListener('DOMContentLoaded', () => {
     // กำหนด URL ของ GAS Web App และ LINE Login
     const gasUrl = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
