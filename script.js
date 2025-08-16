@@ -1,4 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenu = document.querySelector('.mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+        mobileMenu.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    });
+
+    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
+    document.addEventListener('click', (e) => {
+        if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+            mobileMenu.classList.remove('active');
+            hamburger.classList.remove('active');
+        }
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
     // กำหนด URL ของ GAS Web App และ LINE Login
     const gasUrl = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
     const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?
