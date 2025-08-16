@@ -291,11 +291,11 @@ p {
     padding: 0;
     z-index: 999;
     text-align: right;
-
-    /* Use visibility and opacity for animations */
-    visibility: hidden;
+    
+    /* Use opacity and visibility for smoother transitions */
     opacity: 0;
-    transition: visibility 0s 0.4s, opacity 0.4s ease-out;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0s 0.4s;
 }
 
 /* Responsive Design for Mobile */
@@ -323,11 +323,11 @@ p {
 
     /* Show Mobile Menu */
     .mobile-menu.active {
-        visibility: visible;
         opacity: 1;
-        transition: visibility 0s, opacity 0.4s ease-in;
+        visibility: visible;
+        transition: opacity 0.4s ease, visibility 0s;
     }
-
+    
     .mobile-menu li {
         margin-bottom: 15px;
         opacity: 0;
@@ -339,7 +339,13 @@ p {
 
     .mobile-menu.active li {
         animation: slideFromRight 0.4s ease-out forwards;
-        animation-delay: calc(0.2s * var(--i)); /* Increased delay to make the effect more visible */
+        animation-delay: calc(0.2s * var(--i));
+    }
+    
+    /* Animation when closing the menu */
+    .mobile-menu.closing li {
+        animation: slideOutToRight 0.4s ease-in forwards;
+        animation-delay: calc(0.2s * (7 - var(--i)));
     }
 
     .mobile-nav-item {
@@ -384,6 +390,18 @@ p {
         to {
             opacity: 1;
             transform: translateX(0);
+        }
+    }
+    
+    /* Keyframes for closing animation */
+    @keyframes slideOutToRight {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
         }
     }
 }
