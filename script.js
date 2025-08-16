@@ -1,4 +1,4 @@
-// A new, simplified, and robust script.js
+// This is a new, simplified, and robust script.js
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
@@ -7,13 +7,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hamburger && mobileMenu) {
         hamburger.addEventListener('click', (e) => {
             e.stopPropagation(); // Prevents the click from bubbling up
-            mobileMenu.classList.toggle('active');
+            
+            // If the menu is already active, start closing animation
+            if (mobileMenu.classList.contains('active')) {
+                mobileMenu.classList.add('closing');
+                
+                // Use a timeout to ensure the animation finishes before the menu is hidden
+                // Total animation time is 400ms (animation) + 1200ms (max delay) = 1600ms
+                setTimeout(() => {
+                    mobileMenu.classList.remove('active', 'closing');
+                }, 1600);
+            } else {
+                // If the menu is not active, open it
+                mobileMenu.classList.remove('closing'); // Remove closing class just in case
+                mobileMenu.classList.add('active');
+            }
         });
 
         // Close the menu when clicking outside of it
         document.addEventListener('click', (e) => {
-            if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target) && mobileMenu.classList.contains('active')) {
-                mobileMenu.classList.remove('active');
+            // Check if the menu is active and the click is outside the menu and hamburger
+            if (mobileMenu.classList.contains('active') && !hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenu.classList.add('closing');
+
+                setTimeout(() => {
+                    mobileMenu.classList.remove('active', 'closing');
+                }, 1600);
             }
         });
     }
