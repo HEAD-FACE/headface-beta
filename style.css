@@ -312,7 +312,7 @@ p {
         transition: all 0.3s ease-in-out;
     }
 
-    /* Change to using opacity and visibility for smooth transitions */
+    /* Show Mobile Menu */
     .mobile-menu {
         list-style: none;
         position: fixed;
@@ -321,42 +321,27 @@ p {
         padding: 0;
         z-index: 999;
         text-align: right;
-        /* Start with invisible and fully transparent */
-        visibility: hidden;
-        opacity: 0;
-        /* Transition properties to make the menu container appear/disappear smoothly */
-        transition: visibility 0s 0.6s, opacity 0.6s ease;
+        display: none;
     }
 
-    /* Active state (when the menu is open) */
     .mobile-menu.active {
-        visibility: visible;
-        opacity: 1;
-        transition: visibility 0s, opacity 0.4s ease;
+        display: block;
     }
 
     .mobile-menu li {
         margin-bottom: 15px;
         opacity: 0;
         transform: translateX(100%);
-        animation-fill-mode: forwards;
+        animation-fill-mode: backwards;
         text-align: right;
         width: fit-content;
     }
-    
-    /* Animation when opening the menu */
+
     .mobile-menu.active li {
         animation: slideFromRight 0.4s ease-out forwards;
-        animation-delay: calc(0.1s * var(--i));
+        animation-delay: calc(0.4s * var(--i)); /* Increased delay to make the effect more visible */
     }
-    
-    /* Animation when closing the menu */
-    .mobile-menu.closing li {
-        animation: slideOutToRight 0.4s ease-in forwards;
-        /* Reversed delay: last item closes first */
-        animation-delay: calc(0.1s * (7 - var(--i)));
-    }
-    
+
     .mobile-nav-item {
         color: white;
         text-decoration: none;
@@ -390,7 +375,7 @@ p {
         background-color: rgba(51, 51, 51, 0.9);
     }
 
-    /* Keyframes for opening animation */
+    /* Keyframes for Animation */
     @keyframes slideFromRight {
         from {
             opacity: 0;
@@ -399,18 +384,6 @@ p {
         to {
             opacity: 1;
             transform: translateX(0);
-        }
-    }
-
-    /* Keyframes for closing animation (new) */
-    @keyframes slideOutToRight {
-        from {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(100%);
         }
     }
 }
