@@ -191,14 +191,7 @@ p {
     transition: background-color 0.3s;
 }
 
-.upload-label:hover {
-    background-color: #d5d5d5;
-}
-
-#slip-upload {
-    display: none;
-}
-/* CSS สำหรับ Navbar และ Mobile Menu */
+.upload-label:hover {/* CSS สำหรับ Navbar และ Mobile Menu */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -209,7 +202,7 @@ p {
 
         /* Navbar */
         .navbar {
-            background-color: #333;
+            background-color: transparent; /* เปลี่ยนเป็นไม่มีพื้นหลัง */
             color: white;
             padding: 1rem;
             position: fixed;
@@ -217,49 +210,25 @@ p {
             top: 0;
             left: 0;
             z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .navbar-container {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end; /* จัดให้ไอเทมอยู่ทางขวา */
             align-items: center;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
+            position: relative;
         }
-
         .logo {
+            position: absolute;
+            left: 1rem;
             font-size: 1.5rem;
             font-weight: bold;
-            color: white;
+            color: black; /* เปลี่ยนสีโลโก้ให้มองเห็นบนพื้นขาว */
             text-decoration: none;
             transition: color 0.3s;
-        }
-
-        .logo:hover {
-            color: #ffd700;
-        }
-
-        .nav-menu {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-link {
-            color: white;
-            text-decoration: none;
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .nav-link:hover {
-            background-color: #575757;
-            border-radius: 5px;
         }
 
         /* Hamburger Menu */
@@ -268,74 +237,60 @@ p {
             cursor: pointer;
             flex-direction: column;
             gap: 4px;
-            position: relative;
             z-index: 1001;
         }
 
         .hamburger .bar {
             width: 25px;
             height: 3px;
-            background-color: white;
+            background-color: black; /* เปลี่ยนสีขีดให้มองเห็นบนพื้นขาว */
             transition: all 0.3s ease-in-out;
+        }
+
+        /* Desktop Menu (ซ่อนไปก่อน) */
+        .nav-menu {
+            display: none;
         }
 
         /* Mobile Menu */
         .mobile-menu {
             list-style: none;
             position: fixed;
-            top: 0;
-            right: -250px; /* ซ่อนเมนูไว้ทางขวา */
-            height: 100%;
-            width: 200px;
-            background-color: #444;
-            padding: 80px 20px 20px;
-            transition: right 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            top: 60px; /* เลื่อนลงมาให้ต่ำกว่า Navbar */
+            right: 1rem; /* ชิดขวา */
+            padding: 0;
             z-index: 999;
             text-align: right;
-            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end; /* จัดชิดขวา */
-        }
-
-        .mobile-menu.active {
-            right: 0;
         }
 
         .mobile-menu li {
-            margin-bottom: 15px; /* เพิ่มระยะห่างระหว่างปุ่ม */
-            width: 100%;
+            margin-bottom: 10px;
             opacity: 0;
-            transform: translateX(100%); /* ซ่อนรายการไปทางขวา */
+            transform: translateX(100%);
             animation-fill-mode: backwards;
-            text-align: right; /* จัดข้อความชิดขวา */
+            text-align: right;
+            width: fit-content;
         }
 
         .mobile-menu.active li {
             animation: slideFromRight 0.4s ease-out forwards;
-            animation-delay: calc(0.1s * var(--i)); /* ใช้ CSS Variable ในการหน่วงเวลา */
+            animation-delay: calc(0.1s * var(--i));
         }
 
         .mobile-nav-item {
             color: white;
             text-decoration: none;
             font-size: 1.2rem;
-            display: inline-block; /* แก้เป็น inline-block เพื่อให้ padding มีผล */
-            padding: 10px 15px;
-            background-color: #555;
-            border: 2px solid white; /* เพิ่มขอบสีขาว */
+            display: block;
+            padding: 10px 20px;
+            background-color: black; /* พื้นหลังสีดำ */
+            border: 2px solid white; /* ขอบสีขาว */
             border-radius: 50px; /* ทำให้เป็นรูปแคปซูล */
             transition: background-color 0.3s;
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center; /* จัดตัวอักษรให้อยู่ตรงกลางกล่อง */
+            text-align: center;
         }
 
-        .mobile-nav-item:hover {
-            background-color: #777;
-        }
-
-        /* Keyframes สำหรับ Animation */
+        /* Keyframes for Animation */
         @keyframes slideFromRight {
             from {
                 opacity: 0;
@@ -348,11 +303,27 @@ p {
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
-            .nav-menu {
+        @media (min-width: 769px) {
+            .hamburger {
                 display: none;
             }
+            .nav-menu {
+                display: flex;
+            }
+            .mobile-menu {
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
             .hamburger {
                 display: flex;
             }
         }
+    background-color: #d5d5d5;
+}
+
+#slip-upload {
+    display: none;
+}
+
+
