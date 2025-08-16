@@ -199,7 +199,7 @@ p {
     display: none;
 }
 
-        /* สไตล์ CSS สำหรับ Navbar (เพื่อความสะดวก ผมรวมไว้ที่นี่) */
+        /* CSS สำหรับ Navbar และ Mobile Menu */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -290,9 +290,9 @@ p {
             width: 200px;
             background-color: #444;
             padding: 80px 20px 20px;
-            transition: right 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* เปลี่ยน Transition เพื่อให้ดูนุ่มนวลขึ้น */
+            transition: right 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             z-index: 999;
-            text-align: left;
+            text-align: right;
             box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
@@ -304,7 +304,7 @@ p {
         }
 
         .mobile-menu li {
-            margin-bottom: 10px;
+            margin-bottom: 15px; /* เพิ่มระยะห่างระหว่างปุ่ม */
             width: 100%;
             opacity: 0;
             transform: translateX(100%); /* ซ่อนรายการไปทางขวา */
@@ -321,11 +321,11 @@ p {
             color: white;
             text-decoration: none;
             font-size: 1.2rem;
-            display: block;
+            display: inline-block; /* แก้เป็น inline-block เพื่อให้ padding มีผล */
             padding: 10px 15px;
             background-color: #555;
-            border-radius: 8px;
             border: 2px solid white; /* เพิ่มขอบสีขาว */
+            border-radius: 50px; /* ทำให้เป็นรูปแคปซูล */
             transition: background-color 0.3s;
             width: 100%;
             box-sizing: border-box;
