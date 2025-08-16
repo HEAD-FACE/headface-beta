@@ -201,6 +201,7 @@ p {
 }
 
 /* CSS สำหรับ Navbar และ Mobile Menu */
+
 /* Navbar for Desktop */
 .navbar {
     background-color: white;
@@ -321,10 +322,14 @@ p {
         z-index: 999;
         text-align: right;
         display: none;
+        /* This transition allows us to have a delay on close */
+        transition: visibility 0s 0.6s, opacity 0.6s;
     }
-
+    
     .mobile-menu.active {
         display: block;
+        opacity: 1;
+        transition: visibility 0s, opacity 0.4s;
     }
 
     .mobile-menu li {
@@ -335,12 +340,22 @@ p {
         text-align: right;
         width: fit-content;
     }
-
+    
+    /* Animation when opening the menu */
     .mobile-menu.active li {
         animation: slideFromRight 0.4s ease-out forwards;
-        animation-delay: calc(0.2s * var(--i)); /* Increased delay to make the effect more visible */
+        animation-delay: calc(0.1s * var(--i));
+        opacity: 1;
+        transform: translateX(0);
     }
-
+    
+    /* Animation when closing the menu */
+    .mobile-menu.closing li {
+        animation: slideOutToRight 0.4s ease-in forwards;
+        /* Reversed delay: last item closes first */
+        animation-delay: calc(0.1s * (7 - var(--i)));
+    }
+    
     .mobile-nav-item {
         color: white;
         text-decoration: none;
@@ -356,25 +371,25 @@ p {
 
     /* General capsule button style (translucent black) */
     .mobile-nav-item {
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.7);
         border: none;
     }
 
     /* Special styles for the UPGRADE button (Mobile) */
     .mobile-nav-item.upgrade {
-        background: linear-gradient(90deg, rgba(106, 17, 203, 0.5), rgba(37, 117, 252, 0.5));
+        background: linear-gradient(90deg, rgba(106, 17, 203, 0.7), rgba(37, 117, 252, 0.7));
     }
 
     /* Special styles for the SIGN OUT button (Mobile) */
     .mobile-nav-item.signout {
-        background-color: rgba(220, 53, 69, 0.5);
+        background-color: rgba(220, 53, 69, 0.7);
     }
 
     .mobile-nav-item:hover {
-        background-color: rgba(51, 51, 51, 0.7);
+        background-color: rgba(51, 51, 51, 0.9);
     }
 
-    /* Keyframes for Animation */
+    /* Keyframes for opening animation */
     @keyframes slideFromRight {
         from {
             opacity: 0;
@@ -383,6 +398,18 @@ p {
         to {
             opacity: 1;
             transform: translateX(0);
+        }
+    }
+
+    /* Keyframes for closing animation (new) */
+    @keyframes slideOutToRight {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
         }
     }
 }
