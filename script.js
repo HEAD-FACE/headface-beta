@@ -7,15 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
         hamburger.classList.toggle('active');
     });
 
-    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
+    // ปิดเมนูเมื่อคลิกนอกพื้นที่
     document.addEventListener('click', (e) => {
+        // ตรวจสอบว่าไม่ได้คลิกที่ hamburger หรือ mobileMenu
         if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
             mobileMenu.classList.remove('active');
             hamburger.classList.remove('active');
         }
     });
 });
-
 
 document.addEventListener('DOMContentLoaded', () => {
     // กำหนด URL ของ GAS Web App และ LINE Login
