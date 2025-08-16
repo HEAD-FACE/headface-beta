@@ -1,11 +1,12 @@
- // JavaScript code for the Navbar
+// A new, simplified, and robust script.js
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
 
     // Check if the elements exist before adding event listeners
     if (hamburger && mobileMenu) {
-        hamburger.addEventListener('click', () => {
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents the click from bubbling up
             mobileMenu.classList.toggle('active');
         });
 
