@@ -1,22 +1,49 @@
-// โค้ดสำหรับ Navbar
+// JavaScript code for the Navbar with a new closing animation
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
+    let isAnimating = false;
 
-    // ตรวจสอบว่า Element มีอยู่จริง ก่อนที่จะเพิ่ม Event Listener
+    // Check if the elements exist before adding event listeners
     if (hamburger && mobileMenu) {
-        hamburger.addEventListener('click', () => {
-            mobileMenu.classList.toggle('active');
+        // Function to open or close the menu
+        const toggleMenu = () => {
+            if (isAnimating) return; // Prevent multiple clicks during animation
+
+            if (mobileMenu.classList.contains('active')) {
+                // If the menu is open, start the closing animation
+                isAnimating = true;
+                mobileMenu.classList.add('closing');
+                mobileMenu.classList.remove('active');
+
+                // Wait for the animation to finish before removing the 'closing' class
+                // The total animation duration is the last item's delay + animation duration (6 * 0.1s + 0.4s = 1s)
+                setTimeout(() => {
+                    mobileMenu.classList.remove('closing');
+                    isAnimating = false;
+                }, 1000); // 1000ms = 1s, slightly longer than the full animation duration
+            } else {
+                // If the menu is closed, open it
+                mobileMenu.classList.add('active');
+            }
+        };
+
+        // Event listener for the hamburger icon
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents the click from bubbling up and closing the menu
+            toggleMenu();
         });
 
-        // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
+        // Event listener to close the menu when clicking outside of it
         document.addEventListener('click', (e) => {
-            if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target) && mobileMenu.classList.contains('active')) {
-                mobileMenu.classList.remove('active');
+            if (mobileMenu.classList.contains('active') && !hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+                toggleMenu();
             }
         });
     }
 });
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // กำหนด URL ของ GAS Web App และ LINE Login
     const gasUrl = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
