@@ -201,7 +201,7 @@ p {
 
 /* Navbar */
 .navbar {
-    background-color: #333; /* สีพื้นหลัง */
+    background-color: #333;
     color: white;
     padding: 1rem;
     position: fixed;
@@ -218,7 +218,7 @@ p {
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem; /* เพิ่มระยะห่างด้านข้าง */
+    padding: 0 1rem;
 }
 
 .logo {
@@ -261,6 +261,7 @@ p {
     flex-direction: column;
     gap: 4px;
     position: relative;
+    z-index: 1001; /* ทำให้ Hamburger อยู่ด้านบนสุด */
 }
 
 .hamburger .bar {
@@ -274,30 +275,48 @@ p {
 .mobile-menu {
     list-style: none;
     position: fixed;
-    top: 60px; /* ควรปรับให้ตรงกับความสูงของ Navbar */
-    right: -250px; /* แก้ไขตรงนี้ให้ซ่อนเมนูให้มิด */
-    width: 200px; /* กำหนดความกว้างที่แน่นอน */
+    top: 0;
+    left: -250px;
+    height: 100%;
+    width: 200px;
     background-color: #444;
-    padding: 20px;
-    transition: right 0.3s ease-in-out;
+    padding: 80px 20px 20px; /* เพิ่ม padding ด้านบนให้พ้น Navbar */
+    transition: left 0.5s ease-in-out;
     z-index: 999;
     text-align: left;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .mobile-menu.active {
-    right: 0;
+    left: 0;
 }
 
 .mobile-menu li {
     margin-bottom: 15px;
+    opacity: 0;
+    transform: translateX(-50px);
 }
 
-.mobile-menu a {
+.mobile-menu.active li {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+    transition-delay: calc(0.1s * var(--i));
+}
+
+.mobile-nav-item {
     color: white;
     text-decoration: none;
     font-size: 1.2rem;
     display: block;
-    padding: 10px;
+    padding: 10px 15px;
+    background-color: #555;
+    border-radius: 8px; /* ปลายมล */
+    transition: background-color 0.3s;
+}
+
+.mobile-nav-item:hover {
+    background-color: #777;
 }
 
 /* Responsive Design */
@@ -307,7 +326,6 @@ p {
     }
     .hamburger {
         display: flex;
-        right: 1rem;
     }
 }
 
