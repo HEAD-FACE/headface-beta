@@ -201,7 +201,6 @@ p {
 }
 
 /* CSS สำหรับ Navbar และ Mobile Menu */
-
 /* Navbar for Desktop */
 .navbar {
     background-color: white;
@@ -285,9 +284,19 @@ p {
 
 /* Mobile Menu (hidden for Desktop) */
 .mobile-menu {
-    display: none;
-}
+    list-style: none;
+    position: fixed;
+    top: 60px;
+    right: 1rem;
+    padding: 0;
+    z-index: 999;
+    text-align: right;
 
+    /* Use visibility and opacity for animations */
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.4s, opacity 0.4s ease-out;
+}
 
 /* Responsive Design for Mobile */
 @media (max-width: 768px) {
@@ -313,19 +322,10 @@ p {
     }
 
     /* Show Mobile Menu */
-    .mobile-menu {
-        list-style: none;
-        position: fixed;
-        top: 60px;
-        right: 1rem;
-        padding: 0;
-        z-index: 999;
-        text-align: right;
-        display: none;
-    }
-
     .mobile-menu.active {
-        display: block;
+        visibility: visible;
+        opacity: 1;
+        transition: visibility 0s, opacity 0.4s ease-in;
     }
 
     .mobile-menu li {
@@ -375,7 +375,7 @@ p {
         background-color: rgba(51, 51, 51, 0.9);
     }
 
-    /* Keyframes for Animation */
+    /* Keyframes for opening animation */
     @keyframes slideFromRight {
         from {
             opacity: 0;
