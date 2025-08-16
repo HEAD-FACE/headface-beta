@@ -1,4 +1,4 @@
-// โค้ด JavaScript สำหรับการทำงานของ Hamburger Menu
+ // โค้ด JavaScript สำหรับการทำงานของ Hamburger Menu
         document.addEventListener('DOMContentLoaded', () => {
             const hamburger = document.querySelector('.hamburger');
             const mobileMenu = document.querySelector('.mobile-menu');
