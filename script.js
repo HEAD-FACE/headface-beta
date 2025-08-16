@@ -1,4 +1,4 @@
-// JavaScript code for the Navbar
+ // JavaScript code for the Navbar
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
