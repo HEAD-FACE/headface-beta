@@ -201,8 +201,7 @@ p {
 }
 
 /* CSS สำหรับ Navbar และ Mobile Menu */
-
-/* Navbar สำหรับ Desktop */
+/* Navbar for Desktop */
 .navbar {
     background-color: white;
     color: black;
@@ -253,9 +252,9 @@ p {
     background-color: #ddd;
 }
 
-/* สไตล์พิเศษสำหรับปุ่ม UPGRADE (Desktop) */
+/* Special styles for the UPGRADE button (Desktop) */
 .nav-link.upgrade {
-    background: linear-gradient(90deg, #6a11cb, #2575fc); /* ไล่เฉดสีม่วง-น้ำเงิน */
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
     color: white;
     padding: 8px 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -266,9 +265,9 @@ p {
     opacity: 0.9;
 }
 
-/* สไตล์พิเศษสำหรับปุ่ม SIGN OUT (Desktop) */
+/* Special styles for the SIGN OUT button (Desktop) */
 .nav-link.signout {
-    background-color: #dc3545; /* สีแดง */
+    background-color: #dc3545;
     color: white;
     padding: 8px 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -278,20 +277,20 @@ p {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Hamburger Icon (ซ่อนไว้สำหรับ Desktop) */
+/* Hamburger Icon (hidden for Desktop) */
 .hamburger {
     display: none;
 }
 
-/* Mobile Menu (ซ่อนไว้สำหรับ Desktop) */
+/* Mobile Menu (hidden for Desktop) */
 .mobile-menu {
     display: none;
 }
 
 
-/* Responsive Design สำหรับ Mobile */
+/* Responsive Design for Mobile */
 @media (max-width: 768px) {
-    /* ซ่อนเมนู Desktop และแสดง Hamburger */
+    /* Hide Desktop menu and show Hamburger */
     .nav-menu {
         display: none;
     }
@@ -312,7 +311,7 @@ p {
         transition: all 0.3s ease-in-out;
     }
 
-    /* แสดง Mobile Menu */
+    /* Show Mobile Menu */
     .mobile-menu {
         list-style: none;
         position: fixed;
@@ -334,11 +333,12 @@ p {
         transform: translateX(100%);
         animation-fill-mode: backwards;
         text-align: right;
+        width: fit-content;
     }
-    
+
     .mobile-menu.active li {
         animation: slideFromRight 0.4s ease-out forwards;
-        animation-delay: calc(0.4s * var(--i));
+        animation-delay: calc(0.4s * var(--i)); /* Increased delay to make the effect more visible */
     }
 
     .mobile-nav-item {
@@ -350,30 +350,30 @@ p {
         transition: background-color 0.3s;
         text-align: center;
         border-radius: 50px;
-        width: 150px; /* กำหนดความกว้างเท่ากันทั้งหมด */
+        width: 150px;
         box-sizing: border-box;
     }
 
-    /* สไตล์ปุ่มแคปซูลทั่วไป (สีดำโปร่งใส) */
+    /* General capsule button style (translucent black) */
     .mobile-nav-item {
-        background-color: rgba(0, 0, 0, 0.7); /* สีดำโปร่งแสง */
-        border: none; /* ลบขอบ */
+        background-color: rgba(0, 0, 0, 0.5);
+        border: none;
     }
 
-    /* สไตล์พิเศษสำหรับปุ่ม UPGRADE (Mobile) */
+    /* Special styles for the UPGRADE button (Mobile) */
     .mobile-nav-item.upgrade {
-        background: linear-gradient(90deg, rgba(106, 17, 203, 0.7), rgba(37, 117, 252, 0.7));
+        background: linear-gradient(90deg, rgba(106, 17, 203, 0.5), rgba(37, 117, 252, 0.5));
     }
-    
-    /* สไตล์พิเศษสำหรับปุ่ม SIGN OUT (Mobile) */
+
+    /* Special styles for the SIGN OUT button (Mobile) */
     .mobile-nav-item.signout {
-        background-color: rgba(220, 53, 69, 0.9);
+        background-color: rgba(220, 53, 69, 0.5);
     }
-    
+
     .mobile-nav-item:hover {
-        background-color: rgba(51, 51, 51, 1);
+        background-color: rgba(51, 51, 51, 0.7);
     }
-    
+
     /* Keyframes for Animation */
     @keyframes slideFromRight {
         from {
