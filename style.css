@@ -191,7 +191,15 @@ p {
     transition: background-color 0.3s;
 }
 
-.upload-label:hover {/* CSS สำหรับ Navbar และ Mobile Menu */
+.upload-label:hover { 
+    background-color: #d5d5d5;
+}
+
+#slip-upload {
+    display: none;
+}
+
+/* CSS สำหรับ Navbar และ Mobile Menu */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -319,11 +327,5 @@ p {
                 display: flex;
             }
         }
-    background-color: #d5d5d5;
-}
-
-#slip-upload {
-    display: none;
-}
-
+   
 
