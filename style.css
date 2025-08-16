@@ -203,7 +203,7 @@ p {
 
 /* Navbar สำหรับ Desktop */
 .navbar {
-    background-color: transparent;
+    background-color: white;
     color: black;
     padding: 1rem;
     position: fixed;
