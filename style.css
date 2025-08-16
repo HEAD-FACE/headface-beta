@@ -312,7 +312,7 @@ p {
         transition: all 0.3s ease-in-out;
     }
 
-    /* Show Mobile Menu */
+    /* Change to using opacity and visibility for smooth transitions */
     .mobile-menu {
         list-style: none;
         position: fixed;
@@ -321,22 +321,25 @@ p {
         padding: 0;
         z-index: 999;
         text-align: right;
-        display: none;
-        /* This transition allows us to have a delay on close */
-        transition: visibility 0s 0.6s, opacity 0.6s;
+        /* Start with invisible and fully transparent */
+        visibility: hidden;
+        opacity: 0;
+        /* Transition properties to make the menu container appear/disappear smoothly */
+        transition: visibility 0s 0.6s, opacity 0.6s ease;
     }
-    
+
+    /* Active state (when the menu is open) */
     .mobile-menu.active {
-        display: block;
+        visibility: visible;
         opacity: 1;
-        transition: visibility 0s, opacity 0.4s;
+        transition: visibility 0s, opacity 0.4s ease;
     }
 
     .mobile-menu li {
         margin-bottom: 15px;
         opacity: 0;
         transform: translateX(100%);
-        animation-fill-mode: backwards;
+        animation-fill-mode: forwards;
         text-align: right;
         width: fit-content;
     }
@@ -345,8 +348,6 @@ p {
     .mobile-menu.active li {
         animation: slideFromRight 0.4s ease-out forwards;
         animation-delay: calc(0.1s * var(--i));
-        opacity: 1;
-        transform: translateX(0);
     }
     
     /* Animation when closing the menu */
