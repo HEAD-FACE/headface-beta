@@ -1,22 +1,28 @@
- // โค้ด JavaScript สำหรับการทำงานของ Hamburger Menu
-        document.addEventListener('DOMContentLoaded', () => {
-            const hamburger = document.querySelector('.hamburger');
-            const mobileMenu = document.querySelector('.mobile-menu');
+ // Toggle Off-Canvas
+    const hamburger = document.querySelector('.hamburger');
+    const offcanvas = document.getElementById('offcanvas');
+    hamburger.addEventListener('click', () => {
+      offcanvas.classList.toggle('open');
+    });
 
-            hamburger.addEventListener('click', () => {
-                mobileMenu.classList.toggle('active');
-                hamburger.classList.toggle('active');
-            });
+    // ฟังก์ชัน Sign Out (ลบ localStorage แล้ว redirect)
+    function signOutHandler(e) {
+      e.preventDefault();
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
 
-            // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
-            document.addEventListener('click', (e) => {
-                if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
-                    mobileMenu.classList.remove('active');
-                    hamburger.classList.remove('active');
-                }
-            });
+    document.getElementById('sign-out').addEventListener('click', signOutHandler);
+    document.getElementById('off-sign-out').addEventListener('click', signOutHandler);
+
+    // ปิดเมนูเมื่อคลิกลิงก์ใดๆ ใน off-canvas
+    offcanvas.querySelectorAll('a').forEach(a => {
+      if (a.id !== 'off-sign-out') {
+        a.addEventListener('click', () => {
+          offcanvas.classList.remove('open');
         });
-
+      }
+    });
 document.addEventListener('DOMContentLoaded', () => {
     // กำหนด URL ของ GAS Web App และ LINE Login
     const gasUrl = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
