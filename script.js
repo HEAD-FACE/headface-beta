@@ -1,47 +1,56 @@
-// JavaScript code for the Navbar with a new closing animation
+// JavaScript code for the Navbar with a fixed closing animation
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
     let isAnimating = false;
+    const totalItems = mobileMenu.querySelectorAll('li').length;
+    const animationDuration = 400; // 0.4s
+    const animationDelay = 100; // 0.1s
+    const totalAnimationTime = (totalItems * animationDelay) + animationDuration;
 
     // Check if the elements exist before adding event listeners
     if (hamburger && mobileMenu) {
-        // Function to open or close the menu
-        const toggleMenu = () => {
-            if (isAnimating) return; // Prevent multiple clicks during animation
+        // Function to open the menu
+        const openMenu = () => {
+            mobileMenu.classList.add('active');
+            mobileMenu.classList.remove('closing'); // Remove closing class just in case
+        };
 
-            if (mobileMenu.classList.contains('active')) {
-                // If the menu is open, start the closing animation
-                isAnimating = true;
-                mobileMenu.classList.add('closing');
-                mobileMenu.classList.remove('active');
+        // Function to close the menu
+        const closeMenu = () => {
+            if (isAnimating) return;
+            isAnimating = true;
 
-                // Wait for the animation to finish before removing the 'closing' class
-                // The total animation duration is the last item's delay + animation duration (6 * 0.1s + 0.4s = 1s)
-                setTimeout(() => {
-                    mobileMenu.classList.remove('closing');
-                    isAnimating = false;
-                }, 1000); // 1000ms = 1s, slightly longer than the full animation duration
-            } else {
-                // If the menu is closed, open it
-                mobileMenu.classList.add('active');
-            }
+            // Add the 'closing' class to trigger the reverse animation
+            mobileMenu.classList.add('closing');
+
+            // Wait for the animation to finish before removing the 'active' and 'closing' classes
+            setTimeout(() => {
+                mobileMenu.classList.remove('active', 'closing');
+                isAnimating = false;
+            }, totalAnimationTime);
         };
 
         // Event listener for the hamburger icon
         hamburger.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevents the click from bubbling up and closing the menu
-            toggleMenu();
+            e.stopPropagation(); // Prevents the click from bubbling up
+            if (mobileMenu.classList.contains('active')) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
         });
 
         // Event listener to close the menu when clicking outside of it
         document.addEventListener('click', (e) => {
+            // Check if the click target is outside the hamburger and menu, and the menu is active
             if (mobileMenu.classList.contains('active') && !hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
-                toggleMenu();
+                closeMenu();
             }
         });
     }
 });
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
