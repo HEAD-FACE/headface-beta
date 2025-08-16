@@ -338,7 +338,7 @@ p {
     
     .mobile-menu.active li {
         animation: slideFromRight 0.4s ease-out forwards;
-        animation-delay: calc(0.1s * var(--i));
+        animation-delay: calc(0.4s * var(--i));
     }
 
     .mobile-nav-item {
