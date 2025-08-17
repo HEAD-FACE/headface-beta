@@ -220,9 +220,7 @@ response_type=code
         }
     });
 
-    backToMainButton.addEventListener('click', () => {
-        window.location.href = 'index.html';
-    });
+
     
     initializePage();
 });
