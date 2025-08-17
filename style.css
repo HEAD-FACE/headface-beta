@@ -344,8 +344,10 @@ p {
     
     /* Animation when closing the menu */
     .mobile-menu.closing li {
+        /*
+            Set animation duration and make all capsules close at once.
+        */
         animation: slideOutToRight 0.4s ease-in forwards;
-        animation-delay: calc(0.2s * (7 - var(--i)));
     }
 
     .mobile-nav-item {
@@ -405,4 +407,5 @@ p {
         }
     }
 }
+
  
