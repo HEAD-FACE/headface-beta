@@ -2,7 +2,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Define the URL for the Google Apps Script Web App and LINE Login
     const gasUrl = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
-    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2007333047&redirect_uri=https://head-face.github.io/headface-beta/upgrade.html&state=abcdefghijklmnopqrstuvwxyz&scope=profile%20openid`;
+    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?
+response_type=code
+&client_id=2007333047
+&redirect_uri=https://head-face.github.io/headface-beta/upgrade.html
+&state=abcdefghijklmnopqrstuvwxyz
+&scope=profile%20openid`;
 
     let lineUserId = null;
 
@@ -13,17 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const stepPayment = document.getElementById('step-payment');
     const stepSubmit = document.getElementById('step-submit');
     const submitButton = document.getElementById('submit-button');
+    const qrCodeImage = document.getElementById('qr-code-img');
+
     const statusRegister = document.getElementById('status-register');
     const statusPending = document.getElementById('status-pending');
     const statusCompleted = document.getElementById('status-completed');
     const statusText = document.getElementById('status-text');
-    const qrCodeImage = document.getElementById('qr-code-img');
 
     // Get user data from Local Storage
     const userData = JSON.parse(localStorage.getItem('user'));
     if (!userData || !userData.studentId) {
         console.error('ไม่พบข้อมูลผู้ใช้ใน Local Storage');
         alert('ไม่พบข้อมูลผู้ใช้ กรุณาลองล็อกอินใหม่อีกครั้ง');
+        // Redirect the user back to the main page
         window.location.href = 'index.html';
         return;
     }
@@ -88,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (code) {
             console.log('พบ LINE code:', code);
             const fetchUrl = `${gasUrl}?action=getUserId&code=${code}`;
-
+            
             try {
                 const response = await fetch(fetchUrl);
                 if (!response.ok) {
