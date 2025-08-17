@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     // กำหนด URL ของ GAS Web App และ LINE Login
     const gasUrl = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
