@@ -1,26 +1,35 @@
-// This script combines all functionalities: navbar animation and upgrade logic.
+// This script combines all functionalities for the upgrade page:
+// 1. Navbar and mobile menu toggle logic.
+// 2. LINE Login and user upgrade request logic.
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Navbar & Menu Toggle Logic ---
+    // --- Navbar & Mobile Menu Toggle Logic ---
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
     let isAnimating = false;
-    const animationDuration = 400; // Total animation duration in milliseconds.
+    // Set a safe animation duration based on CSS transitions.
+    const animationDuration = 400; 
+    const closingTimeout = 1700; 
 
+    /**
+     * Toggles the mobile menu's active state.
+     */
     const toggleMenu = () => {
         if (isAnimating) {
-            return;
+            return; // Prevent new actions during animation
         }
 
         if (mobileMenu.classList.contains('active')) {
+            // Menu is open, start closing animation
             isAnimating = true;
             mobileMenu.classList.add('closing');
             
             setTimeout(() => {
                 mobileMenu.classList.remove('active', 'closing');
                 isAnimating = false;
-            }, animationDuration);
+            }, closingTimeout);
         } else {
+            // Menu is closed, open it instantly
             mobileMenu.classList.remove('closing');
             mobileMenu.classList.add('active');
         }
@@ -28,118 +37,130 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (hamburger && mobileMenu) {
         hamburger.addEventListener('click', (e) => {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent the click from bubbling up
             toggleMenu();
         });
 
         document.addEventListener('click', (e) => {
+            // Close the menu if the user clicks outside of the hamburger or the menu itself.
             if (mobileMenu.classList.contains('active') && !hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
                 toggleMenu();
             }
         });
     }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // กำหนด URL ของ GAS Web App และ LINE Login
+    // --- Upgrade Logic ---
+    // Define the URL for the Google Apps Script Web App and LINE Login
     const gasUrl = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
-    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?
-response_type=code
-&client_id=2007333047
-&redirect_uri=https://head-face.github.io/headface-beta/upgrade.html
-&state=abcdefghijklmnopqrstuvwxyz
-&scope=profile%20openid`;
+    const lineLoginUrl = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=2007333047&redirect_uri=https://head-face.github.io/headface-beta/upgrade.html&state=abcdefghijklmnopqrstuvwxyz&scope=profile%20openid`;
 
     let lineUserId = null;
 
-    // อ้างอิง Element ต่างๆ ในหน้าเว็บ
+    // Get a reference to all UI elements
     const lineLoginButton = document.getElementById('line-login-button');
     const lineSuccessStatus = document.getElementById('line-success-status');
     const stepRegister = document.getElementById('step-register');
     const stepPayment = document.getElementById('step-payment');
     const stepSubmit = document.getElementById('step-submit');
     const submitButton = document.getElementById('submit-button');
-
     const statusRegister = document.getElementById('status-register');
     const statusPending = document.getElementById('status-pending');
     const statusCompleted = document.getElementById('status-completed');
     const statusText = document.getElementById('status-text');
     const backToMainButton = document.getElementById('back-to-main');
-    
-    // ดึงข้อมูลผู้ใช้จาก Local Storage
+    const qrCodeImage = document.getElementById('qr-code-img');
+
+    // Get user data from Local Storage
     const userData = JSON.parse(localStorage.getItem('user'));
     if (!userData || !userData.studentId) {
         console.error('ไม่พบข้อมูลผู้ใช้ใน Local Storage');
         alert('ไม่พบข้อมูลผู้ใช้ กรุณาลองล็อกอินใหม่อีกครั้ง');
-        // Redirect ผู้ใช้กลับไปหน้าหลัก
-        window.location.href = 'index.html'; 
-        return; 
+        window.location.href = 'index.html';
+        return;
     }
     const studentId = userData.studentId;
 
     /**
-     * อัปเดต UI ตามสถานะการสมัคร
-     * @param {string} status - สถานะของผู้ใช้ (pending, success, null)
+     * Updates the UI based on the user's status.
+     * It now includes checks to prevent errors if elements are not found.
+     * @param {string} status - The user's status (pending, success, null)
      */
     function updateUI(status) {
-        lineLoginButton.style.display = 'block';
-        lineSuccessStatus.style.display = 'none';
-        stepRegister.style.display = 'block';
-        stepPayment.style.display = 'block';
-        stepSubmit.style.display = 'block';
-        statusRegister.classList.remove('active');
-        statusPending.classList.remove('active');
-        statusCompleted.classList.remove('active');
+        // Hide all status elements initially
+        const elementsToHide = [
+            lineLoginButton, lineSuccessStatus, stepRegister,
+            stepPayment, stepSubmit, statusRegister,
+            statusPending, statusCompleted, backToMainButton
+        ];
+        elementsToHide.forEach(el => {
+            if (el) el.style.display = 'none';
+        });
 
+        // Remove active classes
+        const classesToRemove = [statusRegister, statusPending, statusCompleted];
+        classesToRemove.forEach(el => {
+            if (el) el.classList.remove('active');
+        });
+
+        // Apply new styles and classes based on status
         if (status === 'pending') {
-            statusRegister.classList.add('active');
-            statusPending.classList.add('active');
-            lineLoginButton.style.display = 'none';
-            lineSuccessStatus.style.display = 'flex';
-            stepRegister.style.display = 'none';
-            stepPayment.style.display = 'none';
-            stepSubmit.style.display = 'none';
-            statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ';
-            // เพิ่มปุ่มกลับหน้าหลัก
-            backToMainButton.style.display = 'block'; 
+            if (statusRegister) statusRegister.classList.add('active');
+            if (statusPending) statusPending.classList.add('active');
+            if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
+            if (statusText) statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ';
+            if (backToMainButton) backToMainButton.style.display = 'block';
         } else if (status === 'success') {
-            statusRegister.classList.add('active');
-            statusPending.classList.remove('active');
-            statusCompleted.classList.add('active');
-            lineLoginButton.style.display = 'none';
-            lineSuccessStatus.style.display = 'flex';
-            stepRegister.style.display = 'none';
-            stepPayment.style.display = 'none';
-            stepSubmit.style.display = 'none';
-            statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!';
-            // เพิ่มปุ่มกลับหน้าหลัก
-            backToMainButton.style.display = 'block';
+            if (statusRegister) statusRegister.classList.add('active');
+            if (statusCompleted) statusCompleted.classList.add('active');
+            if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
+            if (statusText) statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!';
+            if (backToMainButton) backToMainButton.style.display = 'block';
         } else {
-            statusRegister.classList.add('active');
-            backToMainButton.style.display = 'none';
+            // Default status: Not registered or status unknown
+            if (statusRegister) statusRegister.classList.add('active');
+            if (lineLoginButton) lineLoginButton.style.display = 'block';
+            if (stepRegister) stepRegister.style.display = 'block';
+            if (stepPayment) stepPayment.style.display = 'block';
+            if (stepSubmit) stepSubmit.style.display = 'block';
         }
     }
 
     /**
-     * ฟังก์ชันหลักในการตรวจสอบสถานะผู้ใช้และอัปเดต UI
+     * Main function to initialize the page and fetch user data.
      */
     async function initializePage() {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         
-        // ส่วนนี้จะยังคงดึง lineUserId เพื่อนำไปใช้กับปุ่ม submit
+        // Handle the QR code image 404 error
+        if (qrCodeImage) {
+            // Use a stable placeholder image URL
+            qrCodeImage.src = 'https://placehold.co/200x200/cccccc/000000?text=QR+Code';
+        }
+
+        const proxyUrl = 'https://corsproxy.io/?';
+
+        // Fetch LINE User ID using the authorization code
         if (code) {
             console.log('พบ LINE code:', code);
+            const fetchUrl = `${proxyUrl}${encodeURIComponent(`${gasUrl}?action=getUserId&code=${code}`)}`;
+
             try {
-                const fetchUrl = `${gasUrl}?action=getUserId&code=${code}`;
                 const response = await fetch(fetchUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const result = await response.json();
                 
-                if (result.success) {
-                    lineUserId = result.lineUserId;
+                // The proxy wraps the original response in a 'contents' field.
+                const originalResult = JSON.parse(result.contents);
+
+                if (originalResult.success) {
+                    lineUserId = originalResult.lineUserId;
                     sessionStorage.setItem('lineUserId', lineUserId);
                     console.log('ดึง Line User ID สำเร็จ:', lineUserId);
                 } else {
-                    console.error('ไม่สามารถดึง Line User ID ได้:', result.error);
+                    console.error('ไม่สามารถดึง Line User ID ได้:', originalResult.error);
                     alert('เกิดข้อผิดพลาดในการยืนยันตัวตนด้วย LINE');
                 }
                 
@@ -147,73 +168,89 @@ response_type=code
                 window.history.replaceState({}, document.title, newUrl);
             } catch (error) {
                 console.error('เกิดข้อผิดพลาดในการเชื่อมต่อ:', error);
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง');
             }
+        } else {
+            // If there's no code in the URL, try to get lineUserId from sessionStorage
+            lineUserId = sessionStorage.getItem('lineUserId');
         }
         
-        // ตรวจสอบสถานะจาก studentId แทน
+        // Check user status from the server using studentId
         try {
-            const statusUrl = `${gasUrl}?action=getUserStatusByStudentId&studentId=${studentId}`;
+            const statusUrl = `${proxyUrl}${encodeURIComponent(`${gasUrl}?action=getUserStatusByStudentId&studentId=${studentId}`)}`;
             const response = await fetch(statusUrl);
             const result = await response.json();
             
-            if (result.success) {
-                updateUI(result.status);
+            // The proxy wraps the original response in a 'contents' field.
+            const originalResult = JSON.parse(result.contents);
+
+            if (originalResult.success) {
+                updateUI(originalResult.status);
             } else {
-                console.error('ไม่สามารถตรวจสอบสถานะผู้ใช้ได้:', result.error);
+                console.error('ไม่สามารถตรวจสอบสถานะผู้ใช้ได้:', originalResult.error);
                 updateUI(null);
             }
         } catch (error) {
             console.error('Error fetching user status:', error);
+            alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง');
             updateUI(null);
         }
     }
 
     // --- Event Listeners ---
-    lineLoginButton.addEventListener('click', () => {
-        window.location.href = lineLoginUrl;
-    });
+    if (lineLoginButton) {
+        lineLoginButton.addEventListener('click', () => {
+            window.location.href = lineLoginUrl;
+        });
+    }
 
-    submitButton.addEventListener('click', async () => {
-        // ใช้ studentId จาก localStorage แทน
-        if (!userData) {
-            alert('ไม่พบข้อมูลนักศึกษา');
-            return;
-        }
+    if (submitButton) {
+        submitButton.addEventListener('click', async () => {
+            if (!userData) {
+                alert('ไม่พบข้อมูลนักศึกษา');
+                return;
+            }
 
-        // แต่ยังต้องใช้ lineUserId ที่ได้จากการล็อกอินเพื่อบันทึก
-        if (!lineUserId) {
-            alert('กรุณาลงทะเบียนด้วย LINE ก่อน');
-            return;
-        }
+            if (!lineUserId) {
+                alert('กรุณาลงทะเบียนด้วย LINE ก่อน');
+                return;
+            }
 
-        try {
-            const saveUrl = `${gasUrl}?action=saveRequest` +
-                            `&name=${encodeURIComponent(userData.firstName)}` +
-                            `&lastName=${encodeURIComponent(userData.lastName)}` +
-                            `&no=${encodeURIComponent(userData.no)}` +
-                            `&studentId=${encodeURIComponent(userData.studentId)}` +
-                            `&lineUserId=${encodeURIComponent(lineUserId)}`;
+            try {
+                const proxyUrl = 'https://corsproxy.io/?';
+                const saveUrl = `${proxyUrl}${encodeURIComponent(`${gasUrl}?action=saveRequest` +
+                                `&name=${encodeURIComponent(userData.firstName)}` +
+                                `&lastName=${encodeURIComponent(userData.lastName)}` +
+                                `&no=${encodeURIComponent(userData.no)}` +
+                                `&studentId=${encodeURIComponent(userData.studentId)}` +
+                                `&lineUserId=${encodeURIComponent(lineUserId)}`)}`;
+                                
+                const response = await fetch(saveUrl);
+                const result = await response.json();
 
-            const response = await fetch(saveUrl);
-            const result = await response.json();
+                // The proxy wraps the original response in a 'contents' field.
+                const originalResult = JSON.parse(result.contents);
 
-            if (result.success) {
-                alert('ลงทะเบียนสำเร็จแล้ว! โปรดรอการตรวจสอบ');
-                updateUI('pending');
-            } else {
-                console.error('Error submitting data:', result.error);
+                if (originalResult.success) {
+                    alert('ลงทะเบียนสำเร็จแล้ว! โปรดรอการตรวจสอบ');
+                    updateUI('pending');
+                } else {
+                    console.error('Error submitting data:', originalResult.error);
+                    alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+                }
+            } catch (error) {
+                console.error('Error submitting data:', error);
                 alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
             }
-        } catch (error) {
-            console.error('Error submitting data:', error);
-            alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
-        }
-    });
-
-    backToMainButton.addEventListener('click', () => {
-        window.location.href = 'index.html';
-    });
+        });
+    }
     
+    if (backToMainButton) {
+        backToMainButton.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    }
+
+    // Initialize the page on load
     initializePage();
 });
