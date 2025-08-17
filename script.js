@@ -84,14 +84,10 @@ document.addEventListener('DOMContentLoaded', () => {
             qrCodeImage.src = 'https://placehold.co/200x200/cccccc/000000?text=QR+Code';
         }
 
-        // --- Use a CORS proxy to bypass cross-origin restrictions ---
-        const proxyUrl = 'https://corsproxy.io/?';
-
         // Fetch LINE User ID using the authorization code
         if (code) {
             console.log('พบ LINE code:', code);
-            // We must wrap the Google Apps Script URL with the proxy URL
-            const fetchUrl = `${proxyUrl}${encodeURIComponent(`${gasUrl}?action=getUserId&code=${code}`)}`;
+            const fetchUrl = `${gasUrl}?action=getUserId&code=${code}`;
 
             try {
                 const response = await fetch(fetchUrl);
@@ -100,20 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 const result = await response.json();
                 
-                // ADDED: Check if the response from the proxy has content
-                if (result && result.contents) {
-                    const originalResult = JSON.parse(result.contents);
-                    if (originalResult.success) {
-                        lineUserId = originalResult.lineUserId;
-                        sessionStorage.setItem('lineUserId', lineUserId);
-                        console.log('ดึง Line User ID สำเร็จ:', lineUserId);
-                    } else {
-                        console.error('ไม่สามารถดึง Line User ID ได้:', originalResult.error);
-                        alert('เกิดข้อผิดพลาดในการยืนยันตัวตนด้วย LINE');
-                    }
+                if (result.success) {
+                    lineUserId = result.lineUserId;
+                    sessionStorage.setItem('lineUserId', lineUserId);
+                    console.log('ดึง Line User ID สำเร็จ:', lineUserId);
                 } else {
-                    console.error('Proxy response is empty or malformed.');
-                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง');
+                    console.error('ไม่สามารถดึง Line User ID ได้:', result.error);
+                    alert('เกิดข้อผิดพลาดในการยืนยันตัวตนด้วย LINE');
                 }
                 
                 const newUrl = window.location.origin + window.location.pathname;
@@ -129,21 +118,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Check user status from the server using studentId
         try {
-            // We must wrap the Google Apps Script URL with the proxy URL
-            const statusUrl = `${proxyUrl}${encodeURIComponent(`${gasUrl}?action=getUserStatusByStudentId&studentId=${studentId}`)}`;
+            const statusUrl = `${gasUrl}?action=getUserStatusByStudentId&studentId=${studentId}`;
             const response = await fetch(statusUrl);
             const result = await response.json();
             
-            if (result && result.contents) {
-                const originalResult = JSON.parse(result.contents);
-                if (originalResult.success) {
-                    updateUI(originalResult.status);
-                } else {
-                    console.error('ไม่สามารถตรวจสอบสถานะผู้ใช้ได้:', originalResult.error);
-                    updateUI(null);
-                }
+            if (result.success) {
+                updateUI(result.status);
             } else {
-                console.error('Proxy response is empty or malformed.');
+                console.error('ไม่สามารถตรวจสอบสถานะผู้ใช้ได้:', result.error);
                 updateUI(null);
             }
         } catch (error) {
@@ -173,29 +155,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // We must use the CORS proxy for this request as well
-                const proxyUrl = 'https://corsproxy.io/?';
-                const saveUrl = `${proxyUrl}${encodeURIComponent(`${gasUrl}?action=saveRequest` +
+                const saveUrl = `${gasUrl}?action=saveRequest` +
                                 `&name=${encodeURIComponent(userData.firstName)}` +
                                 `&lastName=${encodeURIComponent(userData.lastName)}` +
                                 `&no=${encodeURIComponent(userData.no)}` +
                                 `&studentId=${encodeURIComponent(userData.studentId)}` +
-                                `&lineUserId=${encodeURIComponent(lineUserId)}`)}`;
+                                `&lineUserId=${encodeURIComponent(lineUserId)}`;
                                 
                 const response = await fetch(saveUrl);
                 const result = await response.json();
 
-                if (result && result.contents) {
-                    const originalResult = JSON.parse(result.contents);
-                    if (originalResult.success) {
-                        alert('ลงทะเบียนสำเร็จแล้ว! โปรดรอการตรวจสอบ');
-                        updateUI('pending');
-                    } else {
-                        console.error('Error submitting data:', originalResult.error);
-                        alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
-                    }
+                if (result.success) {
+                    alert('ลงทะเบียนสำเร็จแล้ว! โปรดรอการตรวจสอบ');
+                    updateUI('pending');
                 } else {
-                    console.error('Proxy response is empty or malformed.');
+                    console.error('Error submitting data:', result.error);
                     alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
                 }
             } catch (error) {
