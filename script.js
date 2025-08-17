@@ -22,7 +22,7 @@ response_type=code
     const statusPending = document.getElementById('status-pending');
     const statusCompleted = document.getElementById('status-completed');
     const statusText = document.getElementById('status-text');
- 
+    const backToMainButton = document.getElementById('back-to-main');
     
     // ดึงข้อมูลผู้ใช้จาก Local Storage
     const userData = JSON.parse(localStorage.getItem('user'));
@@ -58,7 +58,8 @@ response_type=code
             stepPayment.style.display = 'none';
             stepSubmit.style.display = 'none';
             statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ';
-
+            // เพิ่มปุ่มกลับหน้าหลัก
+            backToMainButton.style.display = 'block'; 
         } else if (status === 'success') {
             statusRegister.classList.add('active');
             statusPending.classList.remove('active');
@@ -70,10 +71,10 @@ response_type=code
             stepSubmit.style.display = 'none';
             statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!';
             // เพิ่มปุ่มกลับหน้าหลัก
-
+            backToMainButton.style.display = 'block';
         } else {
             statusRegister.classList.add('active');
-
+            backToMainButton.style.display = 'none';
         }
     }
 
@@ -169,7 +170,9 @@ response_type=code
         }
     });
 
-    
+    backToMainButton.addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
     
     initializePage();
 });
