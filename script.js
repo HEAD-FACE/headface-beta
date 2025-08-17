@@ -3,41 +3,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const mobileMenu = document.querySelector('.mobile-menu');
     let isAnimating = false;
-    // The total animation duration in milliseconds.
-    const animationDuration = 400; 
+    // Calculate the total animation time for closing based on CSS.
+    // Longest animation delay (0.2s * 6 items) + animation duration (0.4s) = 1.6s.
+    // Use a slightly larger value (1.7s) to be safe.
+    const animationTimeout = 1700;
 
-    // A single function to toggle the menu state
-    const toggleMenu = () => {
-        if (isAnimating) {
-            // Prevent new actions during animation
-            return;
-        }
-
-        if (mobileMenu.classList.contains('active')) {
-            // If the menu is OPEN, initiate the closing animation
-            isAnimating = true;
-            mobileMenu.classList.add('closing');
-            
-            // Set a timeout to remove the 'active' and 'closing' classes
-            // once the animation is complete
-            setTimeout(() => {
-                mobileMenu.classList.remove('active', 'closing');
-                isAnimating = false;
-            }, animationDuration);
-        } else {
-            // If the menu is CLOSED, open it instantly
-            mobileMenu.classList.add('active');
-        }
-    };
-
-    // Event listener for the hamburger icon
+    // Check if the elements exist before adding event listeners
     if (hamburger && mobileMenu) {
+        // A single function to toggle the menu state
+        const toggleMenu = () => {
+            if (isAnimating) {
+                // Prevent new actions during animation
+                return;
+            }
+
+            if (mobileMenu.classList.contains('active')) {
+                // If the menu is OPEN, initiate the closing animation
+                isAnimating = true;
+                mobileMenu.classList.add('closing');
+                
+                // Use a timeout to ensure the animation finishes before the menu is hidden
+                setTimeout(() => {
+                    mobileMenu.classList.remove('active', 'closing');
+                    isAnimating = false;
+                }, animationTimeout);
+
+            } else {
+                // If the menu is CLOSED, open it instantly and remove the closing class
+                mobileMenu.classList.remove('closing');
+                mobileMenu.classList.add('active');
+            }
+        };
+        
         hamburger.addEventListener('click', (e) => {
             e.stopPropagation(); // Stop the click from bubbling up
             toggleMenu();
         });
 
-        // Event listener to close the menu when clicking outside of it
+        // Close the menu when clicking outside of it
         document.addEventListener('click', (e) => {
             if (mobileMenu.classList.contains('active') && !hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
                 toggleMenu();
@@ -45,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
 
 
 
