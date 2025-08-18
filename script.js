@@ -25,16 +25,11 @@ response_type=code
     const statusCompleted = document.getElementById('status-completed');
     const statusText = document.getElementById('status-text');
 
-    // Get user data from Local Storage
+    // Get user data from Local Storage (Note: This is now a more flexible check)
     const userData = JSON.parse(localStorage.getItem('user'));
-    if (!userData || !userData.studentId) {
-        console.error('ไม่พบข้อมูลผู้ใช้ใน Local Storage');
-        alert('ไม่พบข้อมูลผู้ใช้ กรุณาลองล็อกอินใหม่อีกครั้ง');
-        // Redirect the user back to the main page
-        window.location.href = 'index.html';
-        return;
-    }
-    const studentId = userData.studentId;
+    
+    // The studentId is used for API calls, but the page can still load without it.
+    const studentId = userData ? userData.studentId : null;
 
     /**
      * Updates the UI based on the user's status and LINE login state.
@@ -124,21 +119,26 @@ response_type=code
             lineUserId = sessionStorage.getItem('lineUserId');
         }
         
-        // Check user status from the server
-        try {
-            const statusUrl = `${gasUrl}?action=getUserStatusByStudentId&studentId=${studentId}`;
-            const response = await fetch(statusUrl);
-            const result = await response.json();
-            
-            if (result.success) {
-                // Update UI based on server status and current LINE login state
-                updateUI(result.status, !!lineUserId);
-            } else {
-                console.error('ไม่สามารถตรวจสอบสถานะผู้ใช้ได้:', result.error);
+        // Check user status from the server only if studentId is available
+        if (studentId) {
+            try {
+                const statusUrl = `${gasUrl}?action=getUserStatusByStudentId&studentId=${studentId}`;
+                const response = await fetch(statusUrl);
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update UI based on server status and current LINE login state
+                    updateUI(result.status, !!lineUserId);
+                } else {
+                    console.error('ไม่สามารถตรวจสอบสถานะผู้ใช้ได้:', result.error);
+                    updateUI(null, !!lineUserId);
+                }
+            } catch (error) {
+                console.error('Error fetching user status:', error);
                 updateUI(null, !!lineUserId);
             }
-        } catch (error) {
-            console.error('Error fetching user status:', error);
+        } else {
+            // If no studentId, just update the UI based on LINE login state
             updateUI(null, !!lineUserId);
         }
     }
