@@ -37,44 +37,43 @@ response_type=code
     const studentId = userData.studentId;
 
     /**
-     * Updates the UI based on the user's status.
-     * @param {string} status - The user's status (pending, success, null)
+     * Updates the UI based on the user's status and LINE login state.
+     * @param {string} status - The user's status from GAS (pending, success, null)
+     * @param {boolean} hasLineLogin - True if the user has successfully logged in with LINE on this session.
      */
-    function updateUI(status) {
-        // Hide all status elements initially
+    function updateUI(status, hasLineLogin) {
+        // Hide all status elements and remove active classes initially
         const elementsToHide = [
             lineLoginButton, lineSuccessStatus, stepRegister,
-            stepPayment, stepSubmit, statusRegister,
-            statusPending, statusCompleted
+            stepPayment, stepSubmit
         ];
-        elementsToHide.forEach(el => {
-            if (el) el.style.display = 'none';
-        });
-
-        // Remove active classes
+        elementsToHide.forEach(el => el && (el.style.display = 'none'));
+        
         const classesToRemove = [statusRegister, statusPending, statusCompleted];
-        classesToRemove.forEach(el => {
-            if (el) el.classList.remove('active');
-        });
+        classesToRemove.forEach(el => el && el.classList.remove('active'));
 
         // Apply new styles and classes based on status
         if (status === 'pending') {
-            if (statusRegister) statusRegister.classList.add('active');
-            if (statusPending) statusPending.classList.add('active');
-            if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
-            if (statusText) statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ';
+            statusRegister?.classList.add('active');
+            statusPending?.classList.add('active');
+            lineSuccessStatus?.style.display = 'flex';
+            statusText && (statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ');
         } else if (status === 'success') {
-            if (statusRegister) statusRegister.classList.add('active');
-            if (statusCompleted) statusCompleted.classList.add('active');
-            if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
-            if (statusText) statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!';
+            statusRegister?.classList.add('active');
+            statusCompleted?.classList.add('active');
+            lineSuccessStatus?.style.display = 'flex';
+            statusText && (statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!');
         } else {
             // Default status: Not registered or status unknown
-            if (statusRegister) statusRegister.classList.add('active');
-            if (lineLoginButton) lineLoginButton.style.display = 'block';
-            if (stepRegister) stepRegister.style.display = 'block';
-            if (stepPayment) stepPayment.style.display = 'block';
-            if (stepSubmit) stepSubmit.style.display = 'block';
+            statusRegister?.classList.add('active');
+            if (hasLineLogin) {
+                lineSuccessStatus?.style.display = 'flex';
+                stepRegister?.style.display = 'block';
+                stepPayment?.style.display = 'block';
+                stepSubmit?.style.display = 'block';
+            } else {
+                lineLoginButton?.style.display = 'block';
+            }
         }
     }
 
@@ -87,20 +86,14 @@ response_type=code
         
         // Handle the QR code image 404 error
         if (qrCodeImage) {
-            // Use a stable placeholder image URL
             qrCodeImage.src = 'https://placehold.co/200x200/cccccc/000000?text=QR+Code';
         }
 
-        // Fetch LINE User ID using the authorization code
+        // Check if we have a LINE login code
         if (code) {
-            console.log('พบ LINE code:', code);
-            const fetchUrl = `${gasUrl}?action=getUserId&code=${code}`;
-            
             try {
+                const fetchUrl = `${gasUrl}?action=getUserId&code=${code}`;
                 const response = await fetch(fetchUrl);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
                 const result = await response.json();
                 
                 if (result.success) {
@@ -116,29 +109,29 @@ response_type=code
                 window.history.replaceState({}, document.title, newUrl);
             } catch (error) {
                 console.error('เกิดข้อผิดพลาดในการเชื่อมต่อ:', error);
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง');
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
             }
         } else {
-            // If there's no code in the URL, try to get lineUserId from sessionStorage
+            // If no code, check session storage for a previously logged-in ID
             lineUserId = sessionStorage.getItem('lineUserId');
         }
         
-        // Check user status from the server using studentId
+        // Check user status from the server
         try {
             const statusUrl = `${gasUrl}?action=getUserStatusByStudentId&studentId=${studentId}`;
             const response = await fetch(statusUrl);
             const result = await response.json();
             
             if (result.success) {
-                updateUI(result.status);
+                // Update UI based on server status and current LINE login state
+                updateUI(result.status, !!lineUserId);
             } else {
                 console.error('ไม่สามารถตรวจสอบสถานะผู้ใช้ได้:', result.error);
-                updateUI(null);
+                updateUI(null, !!lineUserId);
             }
         } catch (error) {
             console.error('Error fetching user status:', error);
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง');
-            updateUI(null);
+            updateUI(null, !!lineUserId);
         }
     }
 
@@ -174,7 +167,7 @@ response_type=code
 
                 if (result.success) {
                     alert('ลงทะเบียนสำเร็จแล้ว! โปรดรอการตรวจสอบ');
-                    updateUI('pending');
+                    updateUI('pending', !!lineUserId);
                 } else {
                     console.error('Error submitting data:', result.error);
                     alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
