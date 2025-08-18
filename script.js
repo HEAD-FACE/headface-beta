@@ -47,32 +47,40 @@ response_type=code
             lineLoginButton, lineSuccessStatus, stepRegister,
             stepPayment, stepSubmit
         ];
-        elementsToHide.forEach(el => el && (el.style.display = 'none'));
+        elementsToHide.forEach(el => {
+            if (el) {
+                el.style.display = 'none';
+            }
+        });
         
         const classesToRemove = [statusRegister, statusPending, statusCompleted];
-        classesToRemove.forEach(el => el && el.classList.remove('active'));
+        classesToRemove.forEach(el => {
+            if (el) {
+                el.classList.remove('active');
+            }
+        });
 
         // Apply new styles and classes based on status
         if (status === 'pending') {
-            statusRegister?.classList.add('active');
-            statusPending?.classList.add('active');
-            lineSuccessStatus?.style.display = 'flex';
-            statusText && (statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ');
+            if (statusRegister) statusRegister.classList.add('active');
+            if (statusPending) statusPending.classList.add('active');
+            if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
+            if (statusText) statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ';
         } else if (status === 'success') {
-            statusRegister?.classList.add('active');
-            statusCompleted?.classList.add('active');
-            lineSuccessStatus?.style.display = 'flex';
-            statusText && (statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!');
+            if (statusRegister) statusRegister.classList.add('active');
+            if (statusCompleted) statusCompleted.classList.add('active');
+            if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
+            if (statusText) statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!';
         } else {
             // Default status: Not registered or status unknown
-            statusRegister?.classList.add('active');
+            if (statusRegister) statusRegister.classList.add('active');
             if (hasLineLogin) {
-                lineSuccessStatus?.style.display = 'flex';
-                stepRegister?.style.display = 'block';
-                stepPayment?.style.display = 'block';
-                stepSubmit?.style.display = 'block';
+                if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
+                if (stepRegister) stepRegister.style.display = 'block';
+                if (stepPayment) stepPayment.style.display = 'block';
+                if (stepSubmit) stepSubmit.style.display = 'block';
             } else {
-                lineLoginButton?.style.display = 'block';
+                if (lineLoginButton) lineLoginButton.style.display = 'block';
             }
         }
     }
