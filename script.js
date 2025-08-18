@@ -30,6 +30,9 @@ response_type=code
     
     // The studentId is used for API calls, but the page can still load without it.
     const studentId = userData ? userData.studentId : null;
+    console.log('ข้อมูลผู้ใช้จาก Local Storage:', userData);
+    console.log('Student ID ที่พบ:', studentId);
+
 
     /**
      * Updates the UI based on the user's status and LINE login state.
@@ -37,6 +40,8 @@ response_type=code
      * @param {boolean} hasLineLogin - True if the user has successfully logged in with LINE on this session.
      */
     function updateUI(status, hasLineLogin) {
+        console.log(`เรียกใช้ updateUI() ด้วยสถานะ: ${status} และมี Line Login: ${hasLineLogin}`);
+
         // Hide all status elements and remove active classes initially
         const elementsToHide = [
             lineLoginButton, lineSuccessStatus, stepRegister,
@@ -57,24 +62,33 @@ response_type=code
 
         // Apply new styles and classes based on status
         if (status === 'pending') {
+            // Case 1: Status is pending. Show pending status, regardless of LINE login.
+            console.log('สถานะเป็น pending. แสดงสถานะอยู่ระหว่างรอการตรวจสอบ');
             if (statusRegister) statusRegister.classList.add('active');
             if (statusPending) statusPending.classList.add('active');
             if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
             if (statusText) statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ';
         } else if (status === 'success') {
+            // Case 2: Status is success. Show success status, regardless of LINE login.
+            console.log('สถานะเป็น success. แสดงสถานะลงทะเบียนสำเร็จแล้ว');
             if (statusRegister) statusRegister.classList.add('active');
             if (statusCompleted) statusCompleted.classList.add('active');
             if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
             if (statusText) statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!';
         } else {
-            // Default status: Not registered or status unknown
+            // Case 3: Status is not yet pending or success.
+            console.log('สถานะยังไม่เป็น pending/success. ตรวจสอบว่าเคยล็อกอิน LINE หรือไม่');
             if (statusRegister) statusRegister.classList.add('active');
             if (hasLineLogin) {
+                // Case 3a: User has logged in with LINE before (hasLineLogin is true). Show the registration steps.
+                console.log('เคยล็อกอิน LINE. แสดงขั้นตอนการสมัคร');
                 if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
                 if (stepRegister) stepRegister.style.display = 'block';
                 if (stepPayment) stepPayment.style.display = 'block';
                 if (stepSubmit) stepSubmit.style.display = 'block';
             } else {
+                // Case 3b: User has not logged in with LINE before. Show the LINE login button.
+                console.log('ยังไม่เคยล็อกอิน LINE. แสดงปุ่ม LINE Login');
                 if (lineLoginButton) lineLoginButton.style.display = 'block';
             }
         }
@@ -92,8 +106,9 @@ response_type=code
             qrCodeImage.src = 'https://placehold.co/200x200/cccccc/000000?text=QR+Code';
         }
 
-        // Check if we have a LINE login code
+        // Check if we have a LINE login code from the URL
         if (code) {
+            console.log('พบโค้ดใน URL. กำลังดึง Line User ID...');
             try {
                 const fetchUrl = `${gasUrl}?action=getUserId&code=${code}`;
                 const response = await fetch(fetchUrl);
@@ -111,21 +126,24 @@ response_type=code
                 const newUrl = window.location.origin + window.location.pathname;
                 window.history.replaceState({}, document.title, newUrl);
             } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการเชื่อมต่อ:', error);
+                console.error('เกิดข้อผิดพลาดในการเชื่อมต่อเพื่อดึง Line User ID:', error);
                 alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
             }
         } else {
             // If no code, check session storage for a previously logged-in ID
             lineUserId = sessionStorage.getItem('lineUserId');
+            console.log('ไม่พบโค้ดใน URL. ตรวจสอบ Line User ID ใน Session Storage:', lineUserId);
         }
         
         // Check user status from the server only if studentId is available
         if (studentId) {
+            console.log('พบ studentId. กำลังตรวจสอบสถานะผู้ใช้จากเซิร์ฟเวอร์...');
             try {
                 const statusUrl = `${gasUrl}?action=getUserStatusByStudentId&studentId=${studentId}`;
                 const response = await fetch(statusUrl);
                 const result = await response.json();
                 
+                console.log('ผลลัพธ์จากเซิร์ฟเวอร์:', result);
                 if (result.success) {
                     // Update UI based on server status and current LINE login state
                     updateUI(result.status, !!lineUserId);
@@ -139,6 +157,7 @@ response_type=code
             }
         } else {
             // If no studentId, just update the UI based on LINE login state
+            console.log('ไม่พบ studentId. แสดง UI ตามสถานะ LINE Login');
             updateUI(null, !!lineUserId);
         }
     }
