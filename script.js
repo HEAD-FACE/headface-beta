@@ -73,6 +73,7 @@ response_type=code
             console.log('สถานะเป็น success. แสดงสถานะลงทะเบียนสำเร็จแล้ว');
             if (statusRegister) statusRegister.classList.add('active');
             if (statusCompleted) statusCompleted.classList.add('active');
+            if (statusPending) statusPending.classList.add('active');
             if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
             if (statusText) statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!';
         } else {
