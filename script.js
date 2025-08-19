@@ -19,6 +19,7 @@ response_type=code
     const stepSubmit = document.getElementById('step-submit');
     const submitButton = document.getElementById('submit-button');
     const qrCodeImage = document.getElementById('qr-code-img');
+    const upgradeButton = document.getElementById('upgrade-button'); // เพิ่มการอ้างอิงถึงปุ่ม UPGRADE
 
     const statusRegister = document.getElementById('status-register');
     const statusPending = document.getElementById('status-pending');
@@ -45,7 +46,7 @@ response_type=code
         // Hide all status elements and remove active classes initially
         const elementsToHide = [
             lineLoginButton, lineSuccessStatus, stepRegister,
-            stepPayment, stepSubmit
+            stepPayment, stepSubmit, upgradeButton
         ];
         elementsToHide.forEach(el => {
             if (el) {
@@ -69,13 +70,13 @@ response_type=code
             if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
             if (statusText) statusText.innerText = 'อยู่ระหว่างรอการตรวจสอบ';
         } else if (status === 'success') {
-            // Case 2: Status is success. Show success status, regardless of LINE login.
-            console.log('สถานะเป็น success. แสดงสถานะลงทะเบียนสำเร็จแล้ว');
+            // Case 2: Status is success. Show success status and the UPGRADE button.
+            console.log('สถานะเป็น success. แสดงสถานะลงทะเบียนสำเร็จแล้ว และแสดงปุ่ม UPGRADE');
             if (statusRegister) statusRegister.classList.add('active');
             if (statusCompleted) statusCompleted.classList.add('active');
-            if (statusPending) statusPending.classList.add('active');
             if (lineSuccessStatus) lineSuccessStatus.style.display = 'flex';
             if (statusText) statusText.innerText = 'ลงทะเบียนสำเร็จแล้ว!';
+            if (upgradeButton) upgradeButton.style.display = 'block'; // แสดงปุ่ม UPGRADE
         } else {
             // Case 3: Status is not yet pending or success.
             console.log('สถานะยังไม่เป็น pending/success. ตรวจสอบว่าเคยล็อกอิน LINE หรือไม่');
@@ -172,7 +173,7 @@ response_type=code
 
     if (submitButton) {
         submitButton.addEventListener('click', async () => {
-            if (!userData) {
+            if (!userData || !userData.studentId) {
                 alert('ไม่พบข้อมูลนักศึกษา');
                 return;
             }
@@ -203,6 +204,39 @@ response_type=code
             } catch (error) {
                 console.error('Error submitting data:', error);
                 alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
+            }
+        });
+    }
+
+    // New event listener for the UPGRADE button
+    if (upgradeButton) {
+        upgradeButton.addEventListener('click', async () => {
+            if (!studentId) {
+                alert('ไม่พบข้อมูลนักศึกษาสำหรับดำเนินการ');
+                return;
+            }
+
+            if (confirm('ยืนยันการอัปเกรดสถานะ? ข้อมูลสถานะจะถูกรีเซ็ต')) {
+                console.log('กำลังส่งคำขออัปเกรดสถานะไปยัง GAS...');
+                try {
+                    const upgradeUrl = `${gasUrl}?action=upgrade` +
+                                     `&studentId=${encodeURIComponent(studentId)}`;
+                    
+                    const response = await fetch(upgradeUrl);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('อัปเกรดสำเร็จแล้ว! หน้าเว็บจะรีเซ็ตเพื่อดำเนินการอีกครั้ง');
+                        // Reset UI to the initial state
+                        updateUI(null, !!lineUserId);
+                    } else {
+                        console.error('Error upgrading status:', result.error);
+                        alert('เกิดข้อผิดพลาดในการอัปเกรดสถานะ');
+                    }
+                } catch (error) {
+                    console.error('Error during upgrade request:', error);
+                    alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+                }
             }
         });
     }
