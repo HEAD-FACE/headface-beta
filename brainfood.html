@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-theme="dark" data-style="glass">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Brain Food – HEAD FACE</title>
 
-  <!-- Tailwind -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary     : '#3B82F6',   // ฟ้า
-            primaryDark : '#1D4ED8',   // ฟ้าเข้ม
-            accent      : '#8B5CF6',   // ม่วง
+            obsidianBg: '#080c10',
+            sageTeal: '#4ecdc4',
           }
         }
       }
@@ -22,46 +23,212 @@
   </script>
 
   <style>
-    .hide-scroll::-webkit-scrollbar{display:none}
-    .hide-scroll{-ms-overflow-style:none;scrollbar-width:none}
+    /* ═══════════════════════════════════════════
+       3006 Design System — Integrated Theme
+       ═══════════════════════════════════════════ */
+    :root {
+      --bg0: #080c10;
+      --bg1: #0d1117;
+      --bg2: #111820;
+      --sur: #161e2a;
+      --card: #1a2232;
+      --card2: #1f2838;
+      --bdr: rgba(120,160,200,.12);
+      --bdr2: rgba(120,160,200,.22);
+
+      --ac: #4ecdc4;
+      --ac2: #a8e6df;
+      --ac3: #2ba89f;
+      --acg: linear-gradient(135deg, #4ecdc4, #2ba89f);
+
+      --tx: #e8f0fe;
+      --tx2: #9ab0cc;
+      --tx3: #5a7a99;
+      --white: #fff;
+
+      --glass: rgba(13, 17, 23, 0.72);
+      --glass2: rgba(22, 30, 42, 0.85);
+      --blur: 16px;
+
+      --r: 16px;
+      --r2: 12px;
+      --r3: 24px;
+
+      --t: .22s cubic-bezier(.4,0,.2,1);
+      --ts: .15s cubic-bezier(.4,0,.2,1);
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg0);
+      color: var(--tx);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── FLOATING NAVBAR ─── */
+    #navbar {
+      backdrop-filter: blur(var(--blur)) saturate(180%);
+      border: 1px solid var(--bdr2);
+      box-shadow: 0 8px 32px rgba(0,0,0,.35);
+    }
+
+    .nav-logo {
+      font-family: 'Prompt', sans-serif;
+      background: var(--acg);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* ── LIBRARY LAYOUT ─── */
+    .lib-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 100px 16px 80px;
+    }
+
+    .lib-header h1 {
+      font-family: 'Prompt', sans-serif;
+      background: var(--acg);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subject-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .subj-card {
+      background: rgba(26,34,50,.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--bdr);
+      border-radius: var(--r);
+      padding: 20px 16px 16px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--t), border-color var(--t), box-shadow var(--t);
+    }
+
+    .subj-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 bottom auto;
+      height: 3px;
+      background: var(--acg);
+      opacity: .4;
+      transition: opacity var(--ts);
+    }
+
+    .subj-card:hover, .subj-card.active {
+      transform: translateY(-4px);
+      border-color: var(--ac);
+      box-shadow: 0 16px 32px rgba(0,0,0,.4), 0 0 0 1px rgba(78,205,196,.1);
+    }
+
+    .subj-card:hover::before, .subj-card.active::before {
+      opacity: 1;
+    }
+
+    .subj-icon {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,.4));
+    }
+
+    .subj-name {
+      font-family: 'Prompt', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--tx);
+    }
+
+    /* ── MAP CONTAINER ─── */
+    .chapter-box {
+      background: var(--card);
+      border: 1px solid var(--bdr);
+      border-radius: var(--r2);
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: border-color var(--ts);
+    }
+    .chapter-box:hover {
+      border-color: var(--bdr2);
+    }
+
+    .chapter-title {
+      font-family: 'Prompt', sans-serif;
+      color: var(--ac);
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .bridge-line {
+      width: 32px;
+      height: 4px;
+      background: var(--bdr2);
+      border-radius: 99px;
+      transition: background var(--ts);
+    }
+    .bridge-line.active {
+      background: var(--ac);
+      box-shadow: 0 0 8px rgba(78,205,196,0.4);
+    }
   </style>
 </head>
 
-<body class="min-h-screen flex flex-col bg-gradient-to-b from-primary to-accent/30">
+<body>
 
-  <!-- ░░ Navbar ░░ -->
-  <nav class="flex items-center justify-between px-4 py-3 bg-primaryDark text-white shadow">
-    <h1 class="font-bold text-lg">Brain Food</h1>
-    <a href="home.html" class="hover:underline">กลับหน้าแรก</a>
+  <nav id="navbar" class="fixed top-4 left-50 fixed left-1/2 -translate-x-1/2 z-50 flex items-center justify-between bg-neutral-900/72 px-6 py-3 rounded-full w-[calc(100vw-32px)] max-w-[1068px]">
+    <div class="nav-logo font-extrabold text-xl tracking-tight">Brain Food</div>
+    <a href="home.html" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">กลับหน้าแรก</a>
   </nav>
 
-  <!-- ░░ แถบเลือกวิชา ░░ -->
-  <section class="relative">
-    <div id="subjectBar"
-         class="hide-scroll flex gap-4 overflow-x-auto px-4 py-3 bg-white/80 backdrop-blur">
-      <!-- ปุ่มวิชาจะถูกเติมด้วย JS -->
+  <main class="lib-page">
+    
+    <div class="lib-header text-center mb-10">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">คลังอาหารสมอง</h1>
+      <p class="text-slate-400 font-light mt-2 text-sm md:text-base">เลือกรายวิชาด้านล่างเพื่อเข้าสู่แผนที่การเรียนรู้และทำแบบทดสอบ</p>
     </div>
-  </section>
 
-  <!-- ░░ พื้นที่แผนที่ ░░ -->
-  <main id="mapArea" class="flex-1 overflow-y-auto p-6"></main>
+    <section class="mb-12">
+      <div id="subjectGrid" class="subject-grid">
+        </div>
+    </section>
 
-  <!-- ░░ Templates ░░ -->
+    <section class="mt-8">
+      <div class="flex items-center gap-2 mb-6">
+        <div class="w-1.5 h-5 bg-gradient-to-b from-[#4ecdc4] to-[#2ba89f] rounded-full"></div>
+        <h2 class="font-['Prompt'] font-semibold text-lg text-slate-200 tracking-wide">แผนที่ด่านแบบทดสอบ (Quiz Map)</h2>
+      </div>
+      <div id="mapArea" class="space-y-4">
+        </div>
+    </section>
+
+  </main>
+
   <template id="tpl-part">
-    <div class="flex flex-col items-center gap-2">
-      <img class="w-20 h-20 object-contain transition-all duration-300" />
-      <span class="text-sm text-center"></span>
+    <div class="flex flex-col items-center gap-2 group">
+      <div class="relative p-1 rounded-xl bg-slate-900/40 border border-slate-800 transition-all duration-300 group-hover:border-teal-500/30 group-hover:bg-slate-900/80">
+        <img class="w-16 h-16 object-contain transition-all duration-300" />
+      </div>
+      <span class="text-xs text-center text-slate-400 font-mono tracking-wide group-hover:text-teal-300 transition-colors"></span>
     </div>
   </template>
 
   <template id="tpl-bridge">
-    <div class="w-10 h-1 bg-primaryDark rounded"></div>
+    <div class="bridge-line"></div>
   </template>
 
-  <!-- ░░ JavaScript ░░ -->
+
   <script>
   
-  /************* ค่าคงที่ *************/
+  /************* ค่าคงที่ & ข้อมูลระบบ *************/
   const apiUrl      = 'https://script.google.com/macros/s/AKfycbxQyMf_zMNuZoa_JLqa2S5LJYgxd1HwDfnMw-3_FtMH-mN2Db72O4xfqpU17zg2mebPkw/exec';
   const dishPending = 'https://i.postimg.cc/9Q00g2DS/image.png';         // ยังไม่ทำ
   const dishDoneSet = [                                                  // ทำแล้ว (สุ่ม)
@@ -72,130 +239,158 @@
     'https://i.postimg.cc/cCrppdn9/7-20250705-150355-0004.png',
     'https://i.postimg.cc/PxFcz0Rm/20250705-150648-0000.png'
   ];
-  const user = JSON.parse(localStorage.getItem("user"));
-  const userNo = user.no || '17';   // เลขที่
+  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const userNo = user.no || '17';   // เลขที่ผู้ใช้
 
-  /* รายชื่อวิชา: [รหัส, ป้ายที่แสดง] */
+  /* รายชื่อวิชา: [รหัส, ป้ายที่แสดง, อีโมจิไอคอน] */
   const subjects = [
-    ['ST','วิทย์'],   ['ET','อังกฤษ'],   ['TH','ไทย'],         ['MT','คณิต'],
-    ['SC','สังคม'],   ['HE','สุข'],      ['PE','พลศึกษา'],     ['HS','ประวัติศาสตร์'],
-    ['CH','จีน'],     ['ME','คณิตสากล'],['SE','วิทย์สากล'],   ['EN','ENS'],
-    ['SR','เทคโนโลยี'],['SW','คอม'],    ['SD','Web Design'],  ['AA','การงาน']
+    ['ST','วิทย์','🧪'],       ['MT','คณิต','📐'],       ['ET','อังกฤษ','🌐'],     ['TH','ไทย','🇹🇭'],
+    ['SC','สังคม','🌏'],      ['HS','ประวัติศาสตร์','📜'],['CH','จีน','🇨🇳'],        ['EN','ENS','🇬🇧'],
+    ['ME','คณิตสากล','🧮'],   ['SE','วิทย์สากล','🚀'],   ['SR','เทคโนโลยี','🤖'],   ['SW','คอม','💻'],
+    ['SD','Web Design','🎨'],['HE','สุขศึกษา','🍎'],    ['PE','พลศึกษา','⚽'],     ['AA','การงาน','🛠️']
   ];
 
-  /************* สร้างปุ่มวิชา *************/
-  const bar = document.getElementById('subjectBar');
-  subjects.forEach(([code,label],i)=>{
-    const b=document.createElement('button');
-    b.textContent = label;
-    b.dataset.code = code;
-    b.className = 'shrink-0 px-4 py-2 rounded-full text-sm ' +
-                 (i===0 ? 'bg-primary text-white' : 'bg-white text-primaryDark hover:bg-primary/10');
-    b.onclick = ()=> selectSubject(code,b);
-    bar.appendChild(b);
+  /************* สร้างตารางการ์ดรายวิชา (Library Grid) *************/
+  const grid = document.getElementById('subjectGrid');
+  subjects.forEach(([code, label, icon], i) => {
+    const card = document.createElement('div');
+    card.className = 'subj-card';
+    card.dataset.code = code;
+    
+    card.innerHTML = `
+      <div class="subj-icon">${icon}</div>
+      <div class="subj-name">${label}</div>
+    `;
+    
+    card.onclick = () => selectSubject(code, card);
+    grid.appendChild(card);
   });
 
-  /************* เมื่อเลือกวิชา *************/
-  async function selectSubject(code,btn){
-    document.querySelectorAll('#subjectBar button')
-            .forEach(b=>b.className='shrink-0 px-4 py-2 rounded-full text-sm bg-white text-primaryDark hover:bg-primary/10');
-    btn.className='shrink-0 px-4 py-2 rounded-full text-sm bg-primary text-white';
+  /************* เมื่อคลิกเลือกวิชา *************/
+  async function selectSubject(code, cardElement) {
+    // ลบสถานะ Active ทั้งหมดออกจากการ์ดอื่น
+    document.querySelectorAll('.subj-card').forEach(c => c.classList.remove('active'));
+    // เพิ่มสถานะ Active ให้การ์ดที่ถูกเลือก
+    cardElement.classList.add('active');
 
-    mapArea.innerHTML='<p class="text-primaryDark">Loading…</p>';
-    try{
+    const mapArea = document.getElementById('mapArea');
+    mapArea.innerHTML = `
+      <div class="text-center py-12 text-slate-400">
+        <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-teal-400 rounded-full mb-2"></div>
+        <p class="font-light text-sm">กำลังเปิดคลังข้อมูลแบบทดสอบ...</p>
+      </div>
+    `;
+
+    try {
       const res = await fetch(`${apiUrl}?action=getPartList&subject=${code}`);
-      const data= await res.json();
+      const data = await res.json();
       renderMap(data.chapters);
-    }catch(err){
-      mapArea.innerHTML='<p class="text-red-600">โหลดข้อมูลไม่ได้</p>';
+    } catch(err) {
+      mapArea.innerHTML = '<div class="text-center py-12 text-red-400 bg-red-950/20 border border-red-900/30 rounded-xl font-light text-sm">ไม่สามารถโหลดข้อมูลแผนที่ได้ กรุณาลองใหม่อีกครั้ง</div>';
       console.error(err);
     }
   }
 
-  /************* วาดแผนที่ *************/
+  /************* วาดแผนที่ภารกิจ (Render Quiz Map) *************/
   const tplPart   = document.getElementById('tpl-part').content;
   const tplBridge = document.getElementById('tpl-bridge').content;
-  const mapArea   = document.getElementById('mapArea');
 
-  /* ❶ helper ใช้ซ้ำ – บังคับเป็น string, trim, split วรรค/คอมมา */
-function isDone(val){
-  const list = String(val ?? '')            // cast → string
-                .trim()                     // ตัดช่องว่างหัว-ท้าย
-                .split(/[\s,]+/)            // แยกด้วย space หรือ ,
-                .filter(Boolean);           // กำจัดช่องว่างล้วน
-  return list.includes(String(userNo));     // เทียบแบบ string
-}
+  function isDone(val) {
+    const list = String(val ?? '').trim().split(/[\s,]+/).filter(Boolean);
+    return list.includes(String(userNo));
+  }
     
-  function renderMap(chapters){
-    mapArea.innerHTML='';
+  function renderMap(chapters) {
+    const mapArea = document.getElementById('mapArea');
+    mapArea.innerHTML = '';
     
-    chapters.forEach((chap,idx)=>{
-       const rawTitle = chap.parts[0]?.content || '';
-    const chapterName = rawTitle.split(',')[0].trim();      // "สารละลาย"
+    if(!chapters || chapters.length === 0) {
+      mapArea.innerHTML = '<div class="text-center py-12 text-slate-500 font-light text-sm bg-slate-900/20 rounded-xl border border-slate-800">ยังไม่มีข้อมูลด่านในวิชานี้</div>';
+      return;
+    }
 
-    const h2 = document.createElement('h2');
-    h2.textContent = `บทที่ ${idx + 1} : ${chapterName}`;  // บทที่ 1 : สารละลาย
-    h2.className   = 'mt-6 mb-3 font-bold text-primaryDark';
-    mapArea.appendChild(h2);
+    chapters.forEach((chap, idx) => {
+      const rawTitle = chap.parts[0]?.content || '';
+      const chapterName = rawTitle.split(',')[0].trim() || `เนื้อหาบทที่ ${idx + 1}`;
 
-      /* แถวจาน */
-      const row=document.createElement('div');
-      row.className='flex items-center gap-3 flex-wrap';
-      mapArea.appendChild(row);
+      // กล่อง Container สำหรับครอบแต่ละบทสไตล์ Obsidian
+      const chapterBox = document.createElement('div');
+      chapterBox.className = 'chapter-box';
 
-      chap.parts.sort((a,b)=>a.part_no-b.part_no).forEach((p,i)=>{
-        const node=tplPart.cloneNode(true);
+      // หัวข้อประจำบท
+      const h3 = document.createElement('h3');
+      h3.className = 'chapter-title mb-4 font-medium flex items-center gap-2';
+      h3.innerHTML = `<span class="text-xs bg-teal-500/10 text-teal-400 border border-teal-500/20 px-2 py-0.5 rounded-md font-mono">CH ${idx + 1}</span> ${chapterName}`;
+      chapterBox.appendChild(h3);
+
+      // แถวเส้นทางเดินจาน (Dish Nodes Flex-row)
+      const row = document.createElement('div');
+      row.className = 'flex items-center gap-4 flex-wrap mt-2 pl-2';
+      chapterBox.appendChild(row);
+
+      // เรียงและสร้างจานภารกิจย่อย (Parts)
+      chap.parts.sort((a,b) => a.part_no - b.part_no).forEach((p, i) => {
+        const node = tplPart.cloneNode(true);
         const img = node.querySelector('img');
         const cap = node.querySelector('span');
 
-        const done = isDone(p.done_no)
-        img.src   = done ? randomDoneImg() : dishPending;
-        img.classList.toggle('opacity-30',!done);
-        cap.textContent=`Part ${p.part_no}`;
+        const done = isDone(p.done_no);
+        img.src = done ? randomDoneImg() : dishPending;
+        img.classList.toggle('opacity-40', !done);
+        cap.textContent = `Part ${p.part_no}`;
 
-        /* Rule: ต้องทำจานก่อนหน้าให้เสร็จ */
-        if(done || i===0 || prevDone(chap.parts,i)){
-          img.classList.add('cursor-pointer','hover:scale-105');
-          img.onclick=()=> startQuiz(chap.subject_id,p.part_no, done);
+        // ตรวจสอบกฎการเล่น: ต้องทำเสร็จ หรือเป็นจานแรก หรือทำจานก่อนหน้าเสร็จแล้ว
+        const canPlay = done || i === 0 || prevDone(chap.parts, i);
+        if (canPlay) {
+          img.classList.add('cursor-pointer', 'hover:scale-110', 'active:scale-95');
+          img.onclick = () => startQuiz(chap.subject_id, p.part_no, done);
+        } else {
+          img.classList.add('cursor-not-allowed');
         }
 
         row.appendChild(node);
-        if(i<chap.parts.length-1) row.appendChild(tplBridge.cloneNode(true));
+        
+        // สร้างเส้นสะพานเชื่อมระหว่างจานย่อย
+        if (i < chap.parts.length - 1) {
+          const bridgeNode = tplBridge.cloneNode(true);
+          const bridgeLine = bridgeNode.querySelector('.bridge-line');
+          if(done) bridgeLine.classList.add('active'); // ถ้าด่านนั้นเสร็จแล้ว ให้เส้นสว่างเป็นสีทีม
+          row.appendChild(bridgeNode);
+        }
       });
 
-      /* เส้นขั้นบท */
-      if(idx<chapters.length-1){
-        const line=document.createElement('div');
-        line.className='my-8 h-0.5 bg-accent/60 w-full';
-        mapArea.appendChild(line);
-      }
+      mapArea.appendChild(chapterBox);
     });
   }
 
-  /* --- tool: ภาพจานทำแล้วแบบสุ่ม --- */
-  function randomDoneImg(){
-    return dishDoneSet[Math.floor(Math.random()*dishDoneSet.length)];
+  /* สุ่มภาพจานอาหารที่ทำสำเร็จ */
+  function randomDoneImg() {
+    return dishDoneSet[Math.floor(Math.random() * dishDoneSet.length)];
   }
 
-  /* --- เช็กจานก่อนหน้าเสร็จหรือยัง --- */
-  function prevDone(parts,index){
-  if(index===0) return true;
-  const prev=parts[index-1];
-  const list = (prev.done_no ?? '').trim().split(/\s+/).filter(Boolean);
-  console.log('prevDone check:', list, 'userNo:', userNo, 'result:', list.includes(String(userNo)));
-  return list.includes(String(userNo));
-}
+  /* ตรวจสอบว่าภารกิจก่อนหน้าผ่านหรือยัง */
+  function prevDone(parts, index) {
+    if (index === 0) return true;
+    const prev = parts[index - 1];
+    const list = (prev.done_no ?? '').trim().split(/\s+/).filter(Boolean);
+    return list.includes(String(userNo));
+  }
 
-  /* --- ไปหน้า quiz --- */
-  function startQuiz(subjectId,partNo, done){
-    localStorage.setItem('subjectId',subjectId);
-    localStorage.setItem('partNo',partNo);
+  /* ทำหน้าที่นำทางไปห้องทําแบบทดสอบ (Quiz.html) */
+  function startQuiz(subjectId, partNo, done) {
+    localStorage.setItem('subjectId', subjectId);
+    localStorage.setItem('partNo', partNo);
     localStorage.setItem('alreadyDone', done);
-    window.location.href='quiz.html';
+    window.location.href = 'quiz.html';
   }
 
-  /* โหลดวิชาแรกทันที */
-  selectSubject(subjects[0][0],bar.querySelector('button'));
+  // เริ่มต้นโดยการดึงและคลิกวิชาแรก (วิทย์ - ST) ทันทีตอนโหลดหน้าเว็บ
+  window.addEventListener('DOMContentLoaded', () => {
+    const firstCard = grid.querySelector('.subj-card');
+    if (firstCard) {
+      selectSubject(subjects[0][0], firstCard);
+    }
+  });
   </script>
 </body>
 </html>
